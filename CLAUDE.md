@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A web-based IBM Mainframe simulator with an authentic z/OS ISPF interface. The backend simulates z/OS UNIX System Services (USS) and an MVS dataset catalog entirely in-memory. The frontend renders as a 3279-color IBM 3270 terminal using ISPF panel conventions.
 
+## Deployment
+
+**Production:** Frontend on [Vercel](https://hercules-linux-style.vercel.app), backend on [Render](https://hercules-backend-dddg.onrender.com).
+
+- Vercel builds `frontend/` and serves it as a static site. All `/api/*` requests are proxied to the Render backend via `vercel.json` rewrites.
+- Render runs `uvicorn app.main:app` from `backend/`. State is in-memory and resets on each Render deploy/restart.
+- Do **not** add a `requirements.txt` to the repo root — Vercel detects it and tries to run a Python build, breaking the frontend build.
+- Do **not** add Python files to `api/` — Vercel treats them as serverless functions and conflicts with the static build.
+
 ## Commands
 
 ### Docker (primary workflow)
