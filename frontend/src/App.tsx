@@ -1,0 +1,136 @@
+import React, { useEffect } from 'react'
+import { useSession } from './hooks/useSession'
+import { useNavigation } from './hooks/useNavigation'
+
+import { LoginPanel } from './components/ISPF/panels/LoginPanel'
+import { PrimaryMenu } from './components/ISPF/panels/PrimaryMenu'
+import { DatasetList } from './components/ISPF/panels/DatasetList'
+import { MemberList } from './components/ISPF/panels/MemberList'
+import { ContentViewer } from './components/ISPF/panels/ContentViewer'
+import { CommandShell } from './components/ISPF/panels/CommandShell'
+import { SDSFPanel } from './components/ISPF/panels/SDSFPanel'
+import { USSBrowser } from './components/ISPF/panels/USSBrowser'
+
+import './styles/global.css'
+import './styles/ispf.css'
+
+export default function App() {
+  const { session, loading, updateCwd } = useSession()
+  const nav = useNavigation({ id: 'login', params: {} })
+
+  // PF3 global key handler → go back
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'F3') { e.preventDefault(); nav.pop() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [nav])
+
+  if (loading || !session) {
+    return (
+      <div style={{
+        height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#000', color: '#00aa00', fontFamily: 'IBM Plex Mono, monospace',
+        fontSize: 14,
+      }}>
+        Connecting to MVS38J...
+      </div>
+    )
+  }
+
+  const { current } = nav
+  const { sessionId, cwd, username } = session
+
+  // Render the current panel
+  switch (current.id) {
+
+    case 'login':
+      return (
+        <LoginPanel
+          onLogin={(uid) => {
+            nav.replace({ id: 'primary', params: {} })
+          }}
+        />
+      )
+
+    case 'primary':
+      return (
+        <PrimaryMenu
+          username={username}
+          onNavigate={(panel) => nav.push(panel)}
+          onLogout={() => nav.reset({ id: 'login', params: {} })}
+        />
+      )
+
+    case 'dslist':
+      return (
+        <DatasetList
+          initialFilter={current.params.filter}
+          onNavigate={(panel) => nav.push(panel)}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'members':
+      return (
+        <MemberList
+          dsn={current.params.dsn!}
+          onNavigate={(panel) => nav.push(panel)}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'view':
+      return (
+        <ContentViewer
+          dsn={current.params.dsn}
+          member={current.params.member}
+          ussPath={current.params.ussPath}
+          label={current.params.label}
+          content={current.params.content}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'command':
+      return (
+        <CommandShell
+          sessionId={sessionId}
+          cwd={cwd}
+          username={username}
+          updateCwd={updateCwd}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'sdsf':
+      return (
+        <SDSFPanel
+          sessionId={sessionId}
+          onNavigate={(panel) => nav.push(panel)}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'uss':
+      return (
+        <USSBrowser
+          path={current.params.ussPath ?? `/u/${username.toLowerCase()}`}
+          title={current.params.title ?? 'VIEW'}
+          sessionId={sessionId}
+          onNavigate={(panel) => nav.push(panel)}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    default:
+      return (
+        <PrimaryMenu
+          username={username}
+          onNavigate={(panel) => nav.push(panel)}
+          onLogout={() => nav.reset({ id: 'login', params: {} })}
+        />
+      )
+  }
+}

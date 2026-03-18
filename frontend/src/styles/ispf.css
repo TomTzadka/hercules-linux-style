@@ -1,0 +1,408 @@
+/* ══════════════════════════════════════════════════════════════
+   IBM 3270 / z/OS ISPF Authentic Terminal Stylesheet
+   Based on 3279 color terminal with x3270 default color scheme
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* 3279 color palette */
+  --z-bg:        #000000;
+  --z-green:     #00aa00;   /* normal unprotected field */
+  --z-green-hi:  #00ff00;   /* high-intensity green (brighter) */
+  --z-white:     #ffffff;   /* labels, protected headings */
+  --z-yellow:    #ffff00;   /* input fields, user-entered data */
+  --z-cyan:      #00aaaa;   /* column headers, special emphasis */
+  --z-cyan-hi:   #00ffff;   /* high-intensity cyan */
+  --z-blue:      #5555ff;   /* neutral info, some separators */
+  --z-red:       #ff3333;   /* errors, alerts */
+  --z-pink:      #ff55ff;   /* special highlight */
+  --z-turquoise: #55ffff;   /* alternate high-intensity */
+
+  /* Structural colors */
+  --z-action-bg:  #0000aa;  /* IBM blue for action bar */
+  --z-action-fg:  #ffffff;  /* white text on action bar */
+  --z-sep:        #005500;  /* separator lines */
+  --z-sel-bg:     #005500;  /* selected row background */
+  --z-sel-fg:     #ffffff;  /* selected row text */
+  --z-msg-err:    #ff3333;
+  --z-msg-ok:     #00ff00;
+  --z-msg-info:   #ffffff;
+
+  --font: 'IBM Plex Mono', 'Courier New', monospace;
+  --fz: 13.5px;
+  --lh: 1.35;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--z-bg);
+  font-family: var(--font);
+  font-size: var(--fz);
+  line-height: var(--lh);
+  color: var(--z-green);
+}
+
+/* ── Scanline overlay ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom, transparent, transparent 2px,
+    rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none; z-index: 9999;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ISPF SCREEN BASE LAYOUT
+   ══════════════════════════════════════════════════════════════ */
+
+.ispf-screen {
+  display: flex; flex-direction: column;
+  height: 100vh; width: 100vw;
+  background: var(--z-bg);
+  overflow: hidden;
+}
+
+/* ── Action Bar (top row) ── */
+.ispf-action-bar {
+  background: var(--z-action-bg);
+  color: var(--z-action-fg);
+  padding: 1px 8px;
+  display: flex; gap: 2px;
+  flex-shrink: 0;
+}
+.ispf-action-item {
+  padding: 0 8px;
+  cursor: pointer;
+  font-size: var(--fz);
+  color: var(--z-action-fg);
+  background: none; border: none;
+  font-family: var(--font);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ispf-action-item:hover { background: #003399; }
+.ispf-action-item:first-child { text-decoration: none; margin-right: 8px; }
+
+/* ── Panel Title Row ── */
+.ispf-title-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+.ispf-panel-title { color: var(--z-white); font-weight: bold; }
+.ispf-title-right  { color: var(--z-cyan); font-size: 12px; }
+.ispf-short-msg    { color: var(--z-yellow); font-size: 12px; margin-left: 8px; }
+.ispf-short-msg--err  { color: var(--z-red); }
+.ispf-short-msg--ok   { color: var(--z-green-hi); }
+
+/* ── Command Line ── */
+.ispf-cmd-row {
+  display: flex; align-items: center;
+  padding: 0 2px; flex-shrink: 0;
+}
+.ispf-cmd-label  { color: var(--z-white); white-space: nowrap; }
+.ispf-cmd-input  {
+  flex: 1; min-width: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--z-yellow); font-family: var(--font); font-size: var(--fz);
+  border-bottom: 1px solid var(--z-yellow);
+  caret-color: var(--z-yellow); padding: 0 2px;
+}
+.ispf-scroll-label { color: var(--z-white); white-space: nowrap; margin-left: 8px; }
+.ispf-scroll-value { color: var(--z-yellow); }
+
+/* ── Long Message ── */
+.ispf-long-msg {
+  padding: 0 2px; min-height: 1.35em; flex-shrink: 0;
+  color: var(--z-yellow); font-size: 12px;
+}
+
+/* ── Separator ── */
+.ispf-sep {
+  border: none; border-top: 1px solid var(--z-sep);
+  margin: 1px 0; flex-shrink: 0;
+  color: var(--z-sep); font-size: 11px; padding: 0 2px;
+  overflow: hidden; white-space: nowrap;
+}
+.ispf-sep-line {
+  color: var(--z-sep);
+  padding: 0 2px;
+  font-size: var(--fz);
+  flex-shrink: 0;
+  overflow: hidden; white-space: nowrap;
+  line-height: 1;
+}
+
+/* ── Body ── */
+.ispf-body {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 0;
+}
+.ispf-body::-webkit-scrollbar { width: 4px; }
+.ispf-body::-webkit-scrollbar-thumb { background: #005500; }
+
+/* ── PF Key Legend ── */
+.ispf-pfkeys {
+  flex-shrink: 0; padding: 0 2px;
+  border-top: 1px solid var(--z-sep);
+}
+.ispf-pfkey-row {
+  display: flex; flex-wrap: wrap; gap: 0;
+  font-size: 12px;
+}
+.ispf-pfkey {
+  display: inline-flex; gap: 0; margin-right: 4px;
+}
+.ispf-pfkey-label { color: var(--z-cyan); }
+.ispf-pfkey-eq    { color: var(--z-cyan); }
+.ispf-pfkey-val   { color: var(--z-white); margin-right: 4px; cursor: pointer; }
+.ispf-pfkey-val:hover { color: var(--z-yellow); }
+
+/* ══════════════════════════════════════════════════════════════
+   LOGIN SCREEN
+   ══════════════════════════════════════════════════════════════ */
+.login-screen {
+  display: flex; flex-direction: column;
+  height: 100vh; width: 100vw; background: var(--z-bg);
+  align-items: center; justify-content: center;
+  font-family: var(--font);
+}
+.login-box {
+  border: 1px solid var(--z-sep);
+  padding: 24px 40px; min-width: 500px;
+}
+.login-title    { color: var(--z-cyan-hi); font-size: 18px; margin-bottom: 20px; text-align: center; }
+.login-subtitle { color: var(--z-white); font-size: 12px; text-align: center; margin-bottom: 24px; }
+.login-field    { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.login-label    { color: var(--z-white); width: 200px; }
+.login-input    {
+  background: transparent; border: none; border-bottom: 1px solid var(--z-yellow);
+  outline: none; color: var(--z-yellow); font-family: var(--font); font-size: var(--fz);
+  width: 140px; padding: 0 2px;
+}
+.login-input:focus { border-bottom-color: var(--z-cyan-hi); }
+.login-enter    { margin-top: 24px; text-align: center; color: var(--z-green); font-size: 12px; }
+.login-sys-info {
+  margin-top: 20px; border-top: 1px solid var(--z-sep);
+  padding-top: 12px; font-size: 11px; color: var(--z-cyan);
+}
+.login-sys-row  { display: flex; justify-content: space-between; margin: 2px 0; }
+.login-sys-key  { color: var(--z-white); }
+.login-sys-val  { color: var(--z-green); }
+
+/* ══════════════════════════════════════════════════════════════
+   PRIMARY OPTION MENU
+   ══════════════════════════════════════════════════════════════ */
+.primary-layout {
+  display: flex; gap: 0; padding: 2px;
+}
+.primary-options { flex: 1; }
+.primary-sysinfo {
+  width: 220px; flex-shrink: 0;
+  border-left: 1px solid var(--z-sep);
+  padding-left: 12px; font-size: 12px;
+}
+.primary-opt-row {
+  display: flex; align-items: baseline; gap: 4px;
+  padding: 1px 4px; cursor: pointer;
+}
+.primary-opt-row:hover { background: var(--z-sel-bg); }
+.primary-opt-num  { color: var(--z-yellow); width: 3ch; flex-shrink: 0; }
+.primary-opt-name { color: var(--z-white); width: 18ch; flex-shrink: 0; }
+.primary-opt-desc { color: var(--z-green); font-size: 12px; }
+.primary-opt-sep  { color: var(--z-sep); margin: 4px 4px; }
+.sysinfo-label { color: var(--z-white); }
+.sysinfo-value { color: var(--z-green); }
+.sysinfo-row   { display: flex; justify-content: space-between; margin: 2px 0; }
+
+/* ══════════════════════════════════════════════════════════════
+   DATASET LIST (3.4)
+   ══════════════════════════════════════════════════════════════ */
+.ds-colheader {
+  display: flex; gap: 0; padding: 0 2px;
+  color: var(--z-cyan); font-size: 12px;
+  border-bottom: 1px solid var(--z-sep);
+  flex-shrink: 0;
+}
+.ds-row-wrap {
+  display: flex; align-items: center; padding: 0 2px;
+  gap: 0;
+}
+.ds-row-wrap:hover { background: #001100; }
+.ds-row-wrap--selected { background: var(--z-sel-bg); }
+.ds-line-cmd {
+  width: 8ch; flex-shrink: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--z-yellow); font-family: var(--font); font-size: var(--fz);
+  border-bottom: 1px solid #003300; padding: 0 1px;
+}
+.ds-col-name  { color: var(--z-white);  width: 44ch; overflow: hidden; flex-shrink: 0; }
+.ds-col-org   { color: var(--z-green);  width: 5ch;  flex-shrink: 0; }
+.ds-col-recfm { color: var(--z-green);  width: 6ch;  flex-shrink: 0; }
+.ds-col-lrecl { color: var(--z-green);  width: 6ch;  flex-shrink: 0; text-align: right; padding-right: 1ch; }
+.ds-col-vol   { color: var(--z-cyan);   width: 8ch;  flex-shrink: 0; }
+.ds-col-ref   { color: var(--z-green);  width: 12ch; flex-shrink: 0; font-size: 12px; }
+
+/* ══════════════════════════════════════════════════════════════
+   MEMBER LIST
+   ══════════════════════════════════════════════════════════════ */
+.mbr-colheader {
+  display: flex; padding: 0 2px;
+  color: var(--z-cyan); font-size: 12px;
+  border-bottom: 1px solid var(--z-sep);
+}
+.mbr-row-wrap {
+  display: flex; align-items: center; padding: 0 2px;
+}
+.mbr-row-wrap:hover { background: #001100; }
+.mbr-line-cmd {
+  width: 3ch; flex-shrink: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--z-yellow); font-family: var(--font); font-size: var(--fz);
+  border-bottom: 1px solid #003300; padding: 0;
+}
+.mbr-col-name    { color: var(--z-white); width: 9ch;  flex-shrink: 0; }
+.mbr-col-vvmm    { color: var(--z-green); width: 6ch;  flex-shrink: 0; }
+.mbr-col-created { color: var(--z-green); width: 12ch; flex-shrink: 0; font-size: 12px; }
+.mbr-col-changed { color: var(--z-green); width: 18ch; flex-shrink: 0; font-size: 12px; }
+.mbr-col-size    { color: var(--z-cyan);  width: 7ch;  flex-shrink: 0; text-align: right; padding-right: 1ch; }
+.mbr-col-id      { color: var(--z-yellow);width: 9ch;  flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════════════════════
+   CONTENT VIEWER (Browse)
+   ══════════════════════════════════════════════════════════════ */
+.browse-col-header {
+  color: var(--z-cyan); padding: 0 2px; font-size: 12px; flex-shrink: 0;
+  border-bottom: 1px solid var(--z-sep);
+}
+.browse-line {
+  display: flex; gap: 0; font-size: var(--fz);
+}
+.browse-linenum {
+  color: var(--z-cyan); width: 7ch; flex-shrink: 0;
+  font-size: 12px; padding-right: 1px; user-select: none;
+}
+.browse-linenum--marker { color: var(--z-white); }
+.browse-content { color: var(--z-green); white-space: pre; }
+.browse-content--jcl    { color: var(--z-yellow); }
+.browse-content--cobol  { color: var(--z-cyan-hi); }
+.browse-content--marker { color: var(--z-white); font-style: italic; }
+.browse-content--comment{ color: var(--z-green); opacity: 0.7; }
+
+/* ══════════════════════════════════════════════════════════════
+   COMMAND SHELL (Option 6)
+   ══════════════════════════════════════════════════════════════ */
+.cmd-shell-intro {
+  padding: 4px 4px; color: var(--z-white); font-size: 12px;
+}
+.cmd-shell-output {
+  padding: 0 4px;
+}
+.cmd-shell-line         { color: var(--z-green); white-space: pre-wrap; font-size: var(--fz); }
+.cmd-shell-line--prompt { color: var(--z-yellow); }
+.cmd-shell-line--error  { color: var(--z-red); }
+.cmd-shell-line--system { color: var(--z-cyan); }
+.cmd-shell-line--ready  {
+  color: var(--z-white); font-weight: bold;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SDSF PANEL
+   ══════════════════════════════════════════════════════════════ */
+.sdsf-colheader {
+  display: flex; padding: 0 2px;
+  color: var(--z-cyan); font-size: 12px;
+  border-bottom: 1px solid var(--z-sep); flex-shrink: 0;
+}
+.sdsf-row {
+  display: flex; padding: 0 2px; font-size: 12px;
+}
+.sdsf-row:hover { background: #001100; }
+.sdsf-col-np      { width: 3ch;  flex-shrink: 0; }
+.sdsf-col-jobname { color: var(--z-white); width: 9ch;  flex-shrink: 0; }
+.sdsf-col-jobid   { color: var(--z-yellow);width: 9ch;  flex-shrink: 0; }
+.sdsf-col-owner   { color: var(--z-green); width: 9ch;  flex-shrink: 0; }
+.sdsf-col-prty    { color: var(--z-cyan);  width: 5ch;  flex-shrink: 0; }
+.sdsf-col-queue   { color: var(--z-green); width: 7ch;  flex-shrink: 0; }
+.sdsf-col-c       { color: var(--z-green); width: 3ch;  flex-shrink: 0; }
+.sdsf-col-maxrc   { color: var(--z-yellow);width: 6ch;  flex-shrink: 0; }
+.sdsf-col-status  { width: 10ch; flex-shrink: 0; }
+.sdsf-status--cc0 { color: var(--z-green); }
+.sdsf-status--cc4 { color: var(--z-yellow); }
+.sdsf-status--cc8 { color: var(--z-red); }
+.sdsf-status--run { color: var(--z-cyan-hi); }
+
+/* SDSF Log panel */
+.sdsf-log-line { font-size: 12px; white-space: pre-wrap; padding: 0 2px; }
+.sdsf-log-line--sys    { color: var(--z-white); }
+.sdsf-log-line--info   { color: var(--z-green); }
+.sdsf-log-line--warn   { color: var(--z-yellow); }
+.sdsf-log-line--err    { color: var(--z-red); }
+.sdsf-log-line--stc    { color: var(--z-cyan); }
+.sdsf-log-line--job    { color: var(--z-pink); }
+
+/* ══════════════════════════════════════════════════════════════
+   USS BROWSER
+   ══════════════════════════════════════════════════════════════ */
+.uss-path-row {
+  padding: 2px 4px; color: var(--z-cyan);
+  font-size: 12px; flex-shrink: 0;
+  border-bottom: 1px solid var(--z-sep);
+}
+.uss-colheader {
+  display: flex; padding: 0 2px; color: var(--z-cyan); font-size: 12px;
+  border-bottom: 1px solid var(--z-sep); flex-shrink: 0;
+}
+.uss-row-wrap {
+  display: flex; align-items: center; padding: 0 2px;
+}
+.uss-row-wrap:hover { background: #001100; }
+.uss-line-cmd {
+  width: 3ch; flex-shrink: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--z-yellow); font-family: var(--font); font-size: var(--fz);
+  border-bottom: 1px solid #003300;
+}
+.uss-col-name  { width: 28ch; flex-shrink: 0; }
+.uss-col-name--dir  { color: var(--z-cyan-hi); }
+.uss-col-name--file { color: var(--z-white); }
+.uss-col-name--dot  { color: var(--z-yellow); }
+.uss-col-perm  { color: var(--z-green);  width: 12ch; flex-shrink: 0; font-size: 12px; }
+.uss-col-owner { color: var(--z-cyan);   width: 10ch; flex-shrink: 0; font-size: 12px; }
+.uss-col-size  { color: var(--z-green);  width: 8ch;  flex-shrink: 0; font-size: 12px; text-align: right; padding-right: 1ch; }
+.uss-col-mod   { color: var(--z-green);  width: 14ch; flex-shrink: 0; font-size: 12px; }
+
+/* ══════════════════════════════════════════════════════════════
+   UTILITY COMPONENTS
+   ══════════════════════════════════════════════════════════════ */
+
+/* Input filter / search row */
+.ispf-filter-row {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 4px; flex-shrink: 0;
+  color: var(--z-white); font-size: 12px;
+}
+.ispf-filter-input {
+  background: transparent; border: none; outline: none;
+  border-bottom: 1px solid var(--z-yellow);
+  color: var(--z-yellow); font-family: var(--font); font-size: var(--fz);
+  width: 40ch; padding: 0 2px;
+}
+
+/* Empty/loading states */
+.ispf-empty { color: var(--z-green); padding: 8px 4px; font-size: 12px; }
+.ispf-loading { color: var(--z-yellow); padding: 4px; animation: blink-y 1s step-start infinite; }
+
+@keyframes blink-y {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #001100; }
+::-webkit-scrollbar-thumb { background: #005500; border-radius: 2px; }

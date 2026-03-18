@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.jaymoseley.com)",
+      "Bash(docker compose:*)",
+      "WebFetch(domain:www.mainframemaster.com)",
+      "WebFetch(domain:techdocs.broadcom.com)",
+      "WebFetch(domain:www.mainframestechhelp.com)",
+      "WebFetch(domain:www.ibmmainframer.com)",
+      "WebFetch(domain:www.ibm.com)",
+      "WebFetch(domain:help.nfc.usda.gov)",
+      "WebFetch(domain:www.microfocus.com)",
+      "WebFetch(domain:x3270.miraheze.org)",
+      "WebFetch(domain:colinpaice.blog)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:x3270.bgp.nu)",
+      "WebFetch(domain:www.twindata.com)",
+      "WebFetch(domain:ftpdocs.broadcom.com)",
+      "WebFetch(domain:chicago-soft.com)",
+      "Bash(perl -i -pe 's/&nbsp;>>&gt; /{\"\"===>\"\"}{\"\" \"\"}/g' components/ISPF/ISPFScreen.tsx components/ISPF/panels/LoginPanel.tsx components/ISPF/panels/DatasetList.tsx)",
+      "Bash(perl -i -pe \"s/&nbsp;&gt;&gt;&gt; /{''''===>''''}{'''' ''''}/g\" components/ISPF/ISPFScreen.tsx components/ISPF/panels/LoginPanel.tsx components/ISPF/panels/DatasetList.tsx)",
+      "Bash(npx tsc:*)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

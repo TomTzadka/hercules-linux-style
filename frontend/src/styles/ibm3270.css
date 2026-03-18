@@ -1,0 +1,364 @@
+/* ── IBM 3270 Phosphor Green Terminal Styles ── */
+
+/* Phosphor glow effect */
+.term-line,
+.term-prompt-label,
+.term-input,
+.term-cursor,
+.status-bar,
+.ds-browser {
+  text-shadow: 0 0 5px #33ff33, 0 0 10px rgba(51, 255, 51, 0.3);
+}
+
+/* Terminal root layout */
+.terminal-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: #0a0a0a;
+  position: relative;
+}
+
+/* Scanline overlay */
+.terminal-root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ── Status Bar ── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 12px;
+  background: #0d0d0d;
+  border-bottom: 1px solid #1a3a1a;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #33ff33;
+}
+.status-system { color: #00ff99; font-weight: bold; }
+.status-user   { color: #99ffcc; }
+.status-cwd    { color: #66ff66; flex: 1; }
+.status-state  { font-weight: bold; }
+.status--ready   { color: #33ff33; }
+.status--running { color: #ffcc00; text-shadow: 0 0 5px #ffcc00; animation: blink-status 0.8s step-start infinite; }
+.status-keys   { display: flex; gap: 8px; margin-left: auto; }
+
+.pf-key {
+  background: none;
+  border: 1px solid #1a3a1a;
+  color: #66ff66;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  text-shadow: 0 0 4px #33ff33;
+  transition: all 0.1s;
+}
+.pf-key:hover, .pf-key--active {
+  background: #1a3a1a;
+  border-color: #33ff33;
+  color: #00ff99;
+}
+
+/* ── Terminal Body ── */
+.terminal-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.terminal-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding: 8px 12px;
+}
+.terminal-main--split {
+  flex: 0 0 55%;
+}
+
+.terminal-side {
+  flex: 0 0 45%;
+  border-left: 1px solid #1a3a1a;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Output ── */
+.term-output {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 4px;
+}
+
+.term-line {
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.term-line--stdout { color: #33ff33; }
+.term-line--stderr { color: #ff6600; text-shadow: 0 0 5px #ff6600; }
+.term-line--system { color: #00ff99; }
+.term-line--prompt { color: #99ffcc; }
+
+/* ── Input Row ── */
+.term-input-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  flex-shrink: 0;
+  border-top: 1px solid #1a3a1a;
+  margin-top: 4px;
+}
+
+.term-prompt-label {
+  color: #99ffcc;
+  white-space: nowrap;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.term-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #33ff33;
+  font-size: 13px;
+  caret-color: transparent;
+}
+
+.term-loading {
+  color: #ffcc00;
+  text-shadow: 0 0 5px #ffcc00;
+  animation: blink-status 0.8s step-start infinite;
+  font-size: 13px;
+}
+
+/* Blinking block cursor */
+.term-cursor {
+  display: inline-block;
+  width: 9px;
+  height: 15px;
+  background: #33ff33;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-start infinite;
+  box-shadow: 0 0 6px #33ff33;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes blink-status {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Dataset Browser ── */
+.ds-browser {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0a0a0a;
+  color: #33ff33;
+  font-size: 12px;
+}
+
+.ds-browser-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #1a3a1a;
+  color: #00ff99;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.ds-close {
+  background: none;
+  border: 1px solid #1a3a1a;
+  color: #ff6600;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.ds-close:hover { background: #1a0000; border-color: #ff6600; }
+
+.ds-browser-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ds-list-panel {
+  width: 55%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #1a3a1a;
+}
+
+.ds-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-bottom: 1px solid #1a3a1a;
+  flex-shrink: 0;
+  color: #99ffcc;
+}
+
+.ds-filter-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #1a3a1a;
+  color: #33ff33;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+}
+.ds-filter-input:focus { border-color: #33ff33; }
+
+.ds-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ds-row {
+  display: flex;
+  gap: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #0f1f0f;
+  font-size: 11px;
+}
+.ds-row:hover { background: #0d200d; }
+.ds-row--selected { background: #122012; border-left: 2px solid #33ff33; }
+.ds-name { flex: 1; color: #33ff33; }
+.ds-org  { color: #99ffcc; width: 30px; }
+.ds-vol  { color: #66ff66; width: 50px; }
+.ds-mbr  { color: #99ffcc; }
+
+.ds-detail-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ds-detail-header {
+  padding: 6px 8px;
+  border-bottom: 1px solid #1a3a1a;
+  flex-shrink: 0;
+}
+.ds-detail-dsn  { color: #00ff99; font-weight: bold; display: block; }
+.ds-detail-meta { color: #66ff66; font-size: 11px; }
+
+.ds-members-area {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ds-members-list {
+  width: 35%;
+  border-right: 1px solid #1a3a1a;
+  overflow-y: auto;
+}
+
+.ds-member {
+  padding: 4px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #0f1f0f;
+  font-size: 11px;
+  color: #66ff66;
+}
+.ds-member:hover { background: #0d200d; }
+.ds-member--active { background: #122012; color: #00ff99; }
+.ds-member-meta { display: block; font-size: 10px; color: #446644; }
+
+.ds-content {
+  flex: 1;
+  overflow: auto;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: #99ffcc;
+  white-space: pre;
+  line-height: 1.4;
+}
+
+.ds-placeholder {
+  padding: 20px;
+  color: #446644;
+  font-style: italic;
+}
+
+/* ── Help Overlay ── */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.help-box {
+  background: #0a0a0a;
+  border: 1px solid #33ff33;
+  box-shadow: 0 0 20px rgba(51, 255, 51, 0.3);
+  padding: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.help-title {
+  color: #00ff99;
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.help-content {
+  color: #99ffcc;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.help-close {
+  display: block;
+  margin-top: 16px;
+  background: none;
+  border: 1px solid #33ff33;
+  color: #33ff33;
+  padding: 6px 16px;
+  font-family: inherit;
+  cursor: pointer;
+  font-size: 12px;
+}
+.help-close:hover { background: #122012; }
