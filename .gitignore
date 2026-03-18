@@ -16,3 +16,4 @@ frontend/dist/
 
 # Docker
 .docker/
+.vercel

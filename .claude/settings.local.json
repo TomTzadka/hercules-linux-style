@@ -23,7 +23,16 @@
       "Bash(npx tsc:*)",
       "Bash(curl -s http://localhost:3000)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(gh auth:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo:*)",
+      "Bash(npx vercel:*)",
+      "Bash(git push:*)",
+      "Bash(render --version)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
     ]
   }
 }
