@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import dependencies
 from app.core.seed_data import seed_vfs, seed_datasets
-from app.routers import session, filesystem, datasets, terminal
+from app.routers import session, filesystem, datasets, terminal, spool
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(session.router)
 app.include_router(filesystem.router)
 app.include_router(datasets.router)
 app.include_router(terminal.router)
+app.include_router(spool.router)
 
 
 @app.get("/healthz")

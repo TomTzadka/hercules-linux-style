@@ -75,7 +75,15 @@ class DatasetEngine:
         member = member.upper()
         if len(member) > 8:
             raise DatasetError(f"Member name too long: {member}")
-        mbr = DatasetMember(name=member, content=content, userid=userid)
+        # VV.MM tracking: increment on each save
+        existing = ds.members.get(member)
+        if existing:
+            mm_new = existing.mm + 1
+            vv_new = existing.vv + (1 if mm_new > 99 else 0)
+            mm_new = mm_new if mm_new <= 99 else 0
+        else:
+            vv_new, mm_new = 1, 0
+        mbr = DatasetMember(name=member, content=content, userid=userid, vv=vv_new, mm=mm_new)
         mbr.update_size()
         ds.members[member] = mbr
         ds.changed = datetime.utcnow().strftime("%Y/%m/%d %H:%M")

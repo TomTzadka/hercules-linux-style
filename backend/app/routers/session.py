@@ -12,8 +12,8 @@ _sessions: dict = {}
 @router.post("/new", response_model=APIResponse)
 def new_session(vfs: VFSEngine = Depends(get_vfs)):
     session_id = str(uuid.uuid4())
-    username = "HERC01"
-    cwd = "/u/herc01"
+    username = "TOMTZ"
+    cwd = "/u/tomtz"
     vfs.set_cwd(session_id, cwd)
     _sessions[session_id] = {"username": username, "cwd": cwd}
     return ok({"session_id": session_id, "cwd": cwd, "username": username})
@@ -37,4 +37,4 @@ def delete_session(session_id: str, vfs: VFSEngine = Depends(get_vfs)):
 
 
 def get_session_username(session_id: str) -> str:
-    return _sessions.get(session_id, {}).get("username", "HERC01")
+    return _sessions.get(session_id, {}).get("username", "TOMTZ")

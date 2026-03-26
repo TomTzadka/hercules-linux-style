@@ -34,13 +34,33 @@ export function PrimaryMenu({ username, onNavigate, onLogout }: Props) {
   const navigate = (opt: string) => {
     const o = opt.trim().toUpperCase()
     if (o === 'X') { onLogout(); return }
-    if (o === '0') { setMsg('SETTINGS NOT AVAILABLE'); setMsgType('err'); return }
+    if (o === '0') { onNavigate({ id: 'settings', params: {} }); return }
     if (o === '1' || o === '2') {
       onNavigate({ id: 'uss', params: { ussPath: `/u/${username.toLowerCase()}`, title: o === '1' ? 'VIEW' : 'EDIT' } })
       return
     }
-    if (o === '3' || o === '3.4') {
+    if (o === '3') {
+      onNavigate({ id: 'utilities', params: {} })
+      return
+    }
+    if (o === '3.4') {
       onNavigate({ id: 'dslist', params: { filter: '' } })
+      return
+    }
+    if (o === '3.2') {
+      onNavigate({ id: 'allocate', params: {} })
+      return
+    }
+    if (o === '3.3') {
+      onNavigate({ id: 'movecopy', params: {} })
+      return
+    }
+    if (o === '4') {
+      onNavigate({ id: 'foreground', params: {} })
+      return
+    }
+    if (o === '5') {
+      onNavigate({ id: 'batch', params: {} })
       return
     }
     if (o === '6') {
@@ -54,10 +74,14 @@ export function PrimaryMenu({ username, onNavigate, onLogout }: Props) {
     // Try =n.n navigation (e.g. =3.4)
     if (o.startsWith('=')) {
       const inner = o.slice(1)
-      if (inner === '3.4' || inner === '3') {
-        onNavigate({ id: 'dslist', params: {} })
-        return
-      }
+      if (inner === '3.4') { onNavigate({ id: 'dslist', params: {} }); return }
+      if (inner === '3') { onNavigate({ id: 'utilities', params: {} }); return }
+      if (inner === '3.2') { onNavigate({ id: 'allocate', params: {} }); return }
+      if (inner === '3.3') { onNavigate({ id: 'movecopy', params: {} }); return }
+      if (inner === '4') { onNavigate({ id: 'foreground', params: {} }); return }
+      if (inner === '5') { onNavigate({ id: 'batch', params: {} }); return }
+      if (inner === '6') { onNavigate({ id: 'command', params: {} }); return }
+      if (inner === 'S' || inner === 's') { onNavigate({ id: 'sdsf', params: {} }); return }
     }
     setMsg(`OPTION NOT AVAILABLE: ${o}`)
     setMsgType('err')

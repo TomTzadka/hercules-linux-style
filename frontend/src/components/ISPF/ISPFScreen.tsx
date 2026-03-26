@@ -11,7 +11,8 @@ interface Props {
   rowInfo?: string
   shortMsg?: string
   shortMsgType?: 'ok' | 'err' | 'info'
-  longMsg?: string
+  longMsg?: string | false
+  longMsgHighlight?: boolean   // show longMsg as attention popup
   commandLabel?: string   // default "Command"
   commandValue: string
   onCommandChange: (v: string) => void
@@ -33,6 +34,7 @@ export function ISPFScreen({
   shortMsg,
   shortMsgType = 'info',
   longMsg,
+  longMsgHighlight = false,
   commandLabel = 'Command',
   commandValue,
   onCommandChange,
@@ -110,8 +112,16 @@ export function ISPFScreen({
       </div>
 
       {/* Long message */}
-      {longMsg !== undefined && (
-        <div className="ispf-long-msg"> {longMsg}</div>
+      {longMsg && (
+        longMsgHighlight
+          ? <div className="ispf-long-msg ispf-long-msg--highlight" style={{
+              background: 'rgba(170,0,0,0.2)',
+              border: '1px solid var(--z-red)',
+              color: 'var(--z-yellow)',
+              padding: '2px 4px',
+              margin: '2px 0',
+            }}>{' *** '}{longMsg}{' ***'}</div>
+          : <div className="ispf-long-msg"> {longMsg}</div>
       )}
 
       {/* Top separator */}

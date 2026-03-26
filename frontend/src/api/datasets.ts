@@ -10,6 +10,9 @@ export interface DatasetInfo {
   changed: string
   member_count: number | null
   migrated: boolean
+  restricted?: boolean
+  tracks_used?: number
+  extents?: number
 }
 
 export interface DatasetDetail {
@@ -21,7 +24,7 @@ export interface DatasetDetail {
   created: string
   changed: string
   content: string | null
-  members: { name: string; size: number; changed: string; userid: string }[]
+  members: { name: string; size: number; changed: string; userid: string; vv?: number; mm?: number }[]
 }
 
 export async function listDatasets(filter?: string): Promise<DatasetInfo[]> {
@@ -49,4 +52,27 @@ export async function deleteMember(dsn: string, member: string): Promise<void> {
 
 export async function deleteDataset(dsn: string): Promise<void> {
   await client.delete(`/datasets/${dsn}`)
+}
+
+export async function searchDataset(
+  dsn: string,
+  q: string,
+  anyc = false,
+): Promise<{ dsn: string; query: string; result_count: number; results: { member: string; matches: { line: number; content: string }[] }[] }> {
+  const res = await client.get(`/datasets/${dsn}/search`, { params: { q, anyc } })
+  if (!res.data.ok) throw new Error(res.data.error)
+  return res.data.data
+}
+
+export async function allocateDataset(
+  dsn: string,
+  dsorg: string = 'PS',
+  recfm: string = 'FB',
+  lrecl: number = 80,
+  blksize: number = 3200,
+  volser: string = 'USR001',
+): Promise<{ dsn: string; dsorg: string }> {
+  const res = await client.post('/datasets', { dsn, dsorg, recfm, lrecl, blksize, volser })
+  if (!res.data.ok) throw new Error(res.data.error)
+  return res.data.data
 }

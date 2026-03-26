@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { ISPFScreen } from '../ISPFScreen'
-import { getDataset, deleteMember } from '../../../api/datasets'
+import { getDataset, getMember, deleteMember } from '../../../api/datasets'
 import type { DatasetDetail } from '../../../api/datasets'
+import { submitJcl } from '../../../api/spool'
 import type { PanelEntry } from '../../../hooks/useNavigation'
 
 interface Props {
   dsn: string
+  username: string
   onNavigate: (panel: PanelEntry) => void
   onBack: () => void
 }
 
-export function MemberList({ dsn, onNavigate, onBack }: Props) {
+export function MemberList({ dsn, username, onNavigate, onBack }: Props) {
   const [detail, setDetail] = useState<DatasetDetail | null>(null)
   const [cmd, setCmd] = useState('')
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'ok'|'err'|'info'>('ok')
   const [loading, setLoading] = useState(true)
   const cmdsRef = useRef<Record<string, string>>({})
+  const rowRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
     setLoading(true)
@@ -32,6 +35,18 @@ export function MemberList({ dsn, onNavigate, onBack }: Props) {
 
   const edit = (member: string) => {
     onNavigate({ id: 'edit', params: { dsn, member } })
+  }
+
+  const doSubmit = async (member: string) => {
+    try {
+      const { content } = await getMember(dsn, member)
+      const job = await submitJcl(content, username)
+      setMsg(`${job.jobid} SUBMITTED — ${job.jobname} — CHECK SDSF FOR OUTPUT`)
+      setMsgType('ok')
+    } catch {
+      setMsg(`SUBMIT FAILED: ${member}`)
+      setMsgType('err')
+    }
   }
 
   const doDelete = async (member: string) => {
@@ -50,10 +65,14 @@ export function MemberList({ dsn, onNavigate, onBack }: Props) {
   }
 
   const handleRowEnter = (e: React.KeyboardEvent<HTMLInputElement>, member: string, idx: number) => {
+    if (e.key === 'ArrowUp') { e.preventDefault(); rowRefs.current[idx - 1]?.focus(); return }
+    if (e.key === 'ArrowDown') { e.preventDefault(); rowRefs.current[idx + 1]?.focus(); return }
     if (e.key === 'Enter') {
       const c = (cmdsRef.current[String(idx)] || '').trim().toUpperCase()
-      if (c === '' || c === 'B' || c === 'V' || c === 'S') {
+      if (c === '' || c === 'B' || c === 'V') {
         open(member)
+      } else if (c === 'S' || c === 'SUB') {
+        doSubmit(member)
       } else if (c === 'E') {
         edit(member)
       } else if (c === 'D') {
@@ -102,7 +121,7 @@ export function MemberList({ dsn, onNavigate, onBack }: Props) {
       onCommandSubmit={handleSubmit}
       scrollValue="CSR"
       pfKeys={pfKeys}
-      longMsg="Enter B=Browse, E=Edit, D=Delete, R=Rename beside member name and press Enter."
+      longMsg="Enter B=Browse  E=Edit  S=Submit  D=Delete beside member name and press Enter."
     >
       {/* Column header */}
       <div className="mbr-colheader">
@@ -129,6 +148,7 @@ export function MemberList({ dsn, onNavigate, onBack }: Props) {
         >
           <span style={{ width: '1ch' }}> </span>
           <input
+            ref={el => { rowRefs.current[idx] = el }}
             className="mbr-line-cmd"
             maxLength={1}
             defaultValue=""
@@ -137,7 +157,7 @@ export function MemberList({ dsn, onNavigate, onBack }: Props) {
             spellCheck={false}
           />
           <span className="mbr-col-name"> {m.name.padEnd(8)}</span>
-          <span className="mbr-col-vvmm"> 01.00 </span>
+          <span className="mbr-col-vvmm"> {String(m.vv ?? 1).padStart(2, '0')}.{String(m.mm ?? 0).padStart(2, '0')} </span>
           <span className="mbr-col-created"> 2026/03/18 </span>
           <span className="mbr-col-changed"> {m.changed} </span>
           <span className="mbr-col-size"> {m.size.toString().padStart(5)} </span>

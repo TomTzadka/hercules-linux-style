@@ -8,7 +8,7 @@ interface Props {
   path: string
   title?: string        // 'VIEW' or 'EDIT' for label
   sessionId: string
-  onNavigate: (panel: PanelEntry) => void
+  onNavigate: (panel: PanelEntry, cwdHint?: string) => void
   onBack: () => void
 }
 
@@ -59,7 +59,7 @@ export function USSBrowser({ path, title = 'VIEW', sessionId, onNavigate, onBack
     if (node.node_type === 'directory') {
       load(fullPath)
     } else {
-      onNavigate({ id: 'view', params: { ussPath: fullPath, label: fullPath } })
+      onNavigate({ id: 'view', params: { ussPath: fullPath, label: fullPath } }, cwd)
     }
   }
 
@@ -68,7 +68,7 @@ export function USSBrowser({ path, title = 'VIEW', sessionId, onNavigate, onBack
     if (node.node_type === 'directory') {
       load(fullPath)
     } else {
-      onNavigate({ id: 'edit', params: { ussPath: fullPath } })
+      onNavigate({ id: 'edit', params: { ussPath: fullPath } }, cwd)
     }
   }
 

@@ -24,9 +24,15 @@ class DatasetMember(BaseModel):
     changed: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y/%m/%d %H:%M"))
     userid: str = "HERC01"
     version: int = 1
+    vv: int = 1   # major version (ISPF VV.MM)
+    mm: int = 0   # minor version (increments each save)
 
     def update_size(self) -> None:
         self.size = len(self.content.encode("utf-8"))
+
+    @property
+    def vv_mm(self) -> str:
+        return f"{self.vv:02d}.{self.mm:02d}"
 
 
 class Dataset(BaseModel):
@@ -42,3 +48,4 @@ class Dataset(BaseModel):
     content: Optional[str] = None   # For PS sequential datasets
     encrypted: bool = False
     migrated: bool = False
+    restricted: bool = False        # RACF-protected dataset

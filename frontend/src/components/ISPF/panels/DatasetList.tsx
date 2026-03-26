@@ -153,7 +153,8 @@ export function DatasetList({ initialFilter = '', onNavigate, onBack }: Props) {
         <span style={{ width: '6ch', flexShrink: 0 }}>Recfm</span>
         <span style={{ width: '6ch', flexShrink: 0, textAlign: 'right', paddingRight: '1ch' }}>Lrecl</span>
         <span style={{ width: '8ch', flexShrink: 0 }}>Volume</span>
-        <span style={{ width: '18ch', flexShrink: 0 }}>Changed</span>
+        <span style={{ width: '5ch', flexShrink: 0, textAlign: 'right', paddingRight: '1ch' }}>Trks</span>
+        <span style={{ width: '14ch', flexShrink: 0 }}>Changed</span>
       </div>
 
       {loading && <div className="ispf-loading"> Loading dataset catalog...</div>}
@@ -179,11 +180,16 @@ export function DatasetList({ initialFilter = '', onNavigate, onBack }: Props) {
             onKeyDown={(e) => handleRowEnter(e, ds, idx)}
             spellCheck={false}
           />
-          <span className="ds-col-name"> {ds.dsn}</span>
+          <span className="ds-col-name" style={{ color: ds.restricted ? 'var(--z-red)' : undefined }}>
+            {' '}{ds.dsn}{ds.restricted ? ' *' : ''}
+          </span>
           <span className="ds-col-org"> {ds.dsorg}</span>
           <span className="ds-col-recfm">{ds.recfm}</span>
           <span className="ds-col-lrecl">{ds.lrecl}</span>
           <span className="ds-col-vol"> {ds.volser}</span>
+          <span style={{ width: '5ch', flexShrink: 0, textAlign: 'right', paddingRight: '1ch', color: 'var(--z-cyan)' }}>
+            {ds.tracks_used ?? 1}
+          </span>
           <span className="ds-col-ref"> {ds.changed}</span>
         </div>
       ))}

@@ -7,9 +7,16 @@ export type PanelId =
   | 'members'
   | 'view'
   | 'edit'
+  | 'settings'
   | 'command'
   | 'sdsf'
   | 'uss'
+  | 'utilities'    // Option 3 sub-menu
+  | 'foreground'   // Option 4
+  | 'batch'        // Option 5
+  | 'allocate'     // Utility 3.2
+  | 'movecopy'     // Utility 3.3
+  | 'searchfor'    // Utility 3.13
 
 export interface PanelParams {
   filter?: string
@@ -18,7 +25,12 @@ export interface PanelParams {
   ussPath?: string
   content?: string
   title?: string
-  label?: string    // display label for browse header
+  label?: string       // display label for browse header
+  sourceDsn?: string   // for movecopy panel
+  sourceMember?: string
+  targetDsn?: string
+  mode?: string        // 'COPY' | 'MOVE'
+  searchDsn?: string   // for searchfor panel
 }
 
 export interface PanelEntry {

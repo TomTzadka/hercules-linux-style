@@ -285,12 +285,24 @@ body::after {
   color: var(--z-cyan); width: 7ch; flex-shrink: 0;
   font-size: 12px; padding-right: 1px; user-select: none;
 }
-.browse-linenum--marker { color: var(--z-white); }
+.browse-linenum--marker { color: var(--z-red); }
 .browse-content { color: var(--z-green); white-space: pre; }
 .browse-content--jcl    { color: var(--z-yellow); }
 .browse-content--cobol  { color: var(--z-cyan-hi); }
-.browse-content--marker { color: var(--z-white); font-style: italic; }
+.browse-content--marker { color: var(--z-red); font-style: italic; }
 .browse-content--comment{ color: var(--z-green); opacity: 0.7; }
+
+/* COLS ruler in EditPanel */
+.edit-cols-ruler {
+  color: var(--z-cyan-hi);
+  font-family: inherit;
+  font-size: inherit;
+  padding-left: 8ch;
+  border-bottom: 1px solid var(--z-cyan);
+  margin-bottom: 2px;
+  white-space: pre;
+  user-select: none;
+}
 
 /* ══════════════════════════════════════════════════════════════
    COMMAND SHELL (Option 6)
