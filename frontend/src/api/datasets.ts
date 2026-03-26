@@ -38,3 +38,15 @@ export async function getMember(dsn: string, member: string): Promise<{ content:
   const res = await client.get(`/datasets/${dsn}/members/${member}`)
   return res.data.data
 }
+
+export async function writeMember(dsn: string, member: string, content: string): Promise<void> {
+  await client.post(`/datasets/${dsn}/members/${member}`, { content })
+}
+
+export async function deleteMember(dsn: string, member: string): Promise<void> {
+  await client.delete(`/datasets/${dsn}/members/${member}`)
+}
+
+export async function deleteDataset(dsn: string): Promise<void> {
+  await client.delete(`/datasets/${dsn}`)
+}

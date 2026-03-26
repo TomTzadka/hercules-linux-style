@@ -60,11 +60,11 @@ export function ISPFScreen({
     onKeyDown?.(e)
   }
 
-  // Focus input on mount and after each render
+  // Focus command input on mount only (not on every re-render, to avoid stealing focus from edit inputs)
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 50)
     return () => clearTimeout(t)
-  })
+  }, [])
 
   const msgClass = `ispf-short-msg ispf-short-msg--${shortMsgType}`
 

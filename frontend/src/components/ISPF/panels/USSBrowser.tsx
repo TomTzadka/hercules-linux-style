@@ -63,10 +63,20 @@ export function USSBrowser({ path, title = 'VIEW', sessionId, onNavigate, onBack
     }
   }
 
+  const edit = (node: FSNode) => {
+    const fullPath = cwd.replace(/\/$/, '') + '/' + node.name
+    if (node.node_type === 'directory') {
+      load(fullPath)
+    } else {
+      onNavigate({ id: 'edit', params: { ussPath: fullPath } })
+    }
+  }
+
   const handleRowEnter = (e: React.KeyboardEvent<HTMLInputElement>, node: FSNode, idx: number) => {
     if (e.key === 'Enter') {
       const c = (cmdsRef.current[String(idx)] || '').trim().toLowerCase()
-      if (c === '' || c === 'b' || c === 'e' || c === 'v') { open(node); return }
+      if (c === '' || c === 'b' || c === 'v') { open(node); return }
+      if (c === 'e') { edit(node); return }
       if (c === 's') { open(node); return }
       setMsg(`UNKNOWN COMMAND: ${c.toUpperCase()}`)
       setMsgType('err')

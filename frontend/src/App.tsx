@@ -10,6 +10,7 @@ import { ContentViewer } from './components/ISPF/panels/ContentViewer'
 import { CommandShell } from './components/ISPF/panels/CommandShell'
 import { SDSFPanel } from './components/ISPF/panels/SDSFPanel'
 import { USSBrowser } from './components/ISPF/panels/USSBrowser'
+import { EditPanel } from './components/ISPF/panels/EditPanel'
 
 import './styles/global.css'
 import './styles/ispf.css'
@@ -77,6 +78,17 @@ export default function App() {
         <MemberList
           dsn={current.params.dsn!}
           onNavigate={(panel) => nav.push(panel)}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'edit':
+      return (
+        <EditPanel
+          ussPath={current.params.ussPath}
+          dsn={current.params.dsn}
+          member={current.params.member}
+          sessionId={sessionId}
           onBack={() => nav.pop()}
         />
       )

@@ -6,6 +6,7 @@ export type PanelId =
   | 'dslist'
   | 'members'
   | 'view'
+  | 'edit'
   | 'command'
   | 'sdsf'
   | 'uss'

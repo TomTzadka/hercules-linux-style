@@ -322,6 +322,168 @@ def execute_command(
         return f"ds: unknown subcommand '{sub}'. Try: list, members, read, cat", cwd, 1
 
     # ------------------------------------------------------------------
+    # grep
+    # ------------------------------------------------------------------
+    if cmd == "grep":
+        flags = [a for a in args if a.startswith("-")]
+        positional = [a for a in args if not a.startswith("-")]
+        if len(positional) < 2:
+            return "Usage: grep <pattern> <file>", cwd, 1
+        pattern, filepath = positional[0], positional[1]
+        ignore_case = "-i" in flags
+        try:
+            content = vfs.readfile(_resolve_path(filepath))
+        except VFSError as e:
+            return str(e), cwd, 1
+        results = []
+        for lineno, line in enumerate(content.splitlines(), 1):
+            haystack = line.lower() if ignore_case else line
+            needle = pattern.lower() if ignore_case else pattern
+            if needle in haystack:
+                results.append(f"{lineno}:{line}")
+        if not results:
+            return "", cwd, 1
+        return _output("\n".join(results))
+
+    # ------------------------------------------------------------------
+    # head
+    # ------------------------------------------------------------------
+    if cmd == "head":
+        n = 10
+        paths = []
+        i = 0
+        while i < len(args):
+            if args[i] in ("-n", "--lines") and i + 1 < len(args):
+                try: n = int(args[i + 1])
+                except ValueError: pass
+                i += 2
+            elif args[i].startswith("-n") and len(args[i]) > 2:
+                try: n = int(args[i][2:])
+                except ValueError: pass
+                i += 1
+            else:
+                paths.append(args[i])
+                i += 1
+        if not paths:
+            return "head: missing file operand", cwd, 1
+        try:
+            content = vfs.readfile(_resolve_path(paths[0]))
+        except VFSError as e:
+            return str(e), cwd, 1
+        return _output("\n".join(content.splitlines()[:n]))
+
+    # ------------------------------------------------------------------
+    # tail
+    # ------------------------------------------------------------------
+    if cmd == "tail":
+        n = 10
+        paths = []
+        i = 0
+        while i < len(args):
+            if args[i] in ("-n", "--lines") and i + 1 < len(args):
+                try: n = int(args[i + 1])
+                except ValueError: pass
+                i += 2
+            elif args[i].startswith("-n") and len(args[i]) > 2:
+                try: n = int(args[i][2:])
+                except ValueError: pass
+                i += 1
+            else:
+                paths.append(args[i])
+                i += 1
+        if not paths:
+            return "tail: missing file operand", cwd, 1
+        try:
+            content = vfs.readfile(_resolve_path(paths[0]))
+        except VFSError as e:
+            return str(e), cwd, 1
+        return _output("\n".join(content.splitlines()[-n:]))
+
+    # ------------------------------------------------------------------
+    # wc
+    # ------------------------------------------------------------------
+    if cmd == "wc":
+        count_flags = [a for a in args if a.startswith("-")]
+        paths = [a for a in args if not a.startswith("-")]
+        if not paths:
+            return "wc: missing file operand", cwd, 1
+        try:
+            content = vfs.readfile(_resolve_path(paths[0]))
+        except VFSError as e:
+            return str(e), cwd, 1
+        line_count = len(content.splitlines())
+        word_count = len(content.split())
+        char_count = len(content)
+        if "-l" in count_flags:
+            return _output(str(line_count))
+        if "-w" in count_flags:
+            return _output(str(word_count))
+        if "-c" in count_flags:
+            return _output(str(char_count))
+        return _output(f"{line_count:>8} {word_count:>8} {char_count:>8} {paths[0]}")
+
+    # ------------------------------------------------------------------
+    # chmod
+    # ------------------------------------------------------------------
+    if cmd == "chmod":
+        if len(args) < 2:
+            return "Usage: chmod <mode> <path>", cwd, 1
+        mode, target_path = args[0], _resolve_path(args[1])
+        node = vfs.resolve(target_path)
+        if node is None:
+            return f"chmod: {target_path}: No such file or directory", cwd, 1
+        # Store the mode string on the node
+        node.permissions = mode[:9].ljust(9, "-")
+        return "", cwd, 0
+
+    # ------------------------------------------------------------------
+    # submit
+    # ------------------------------------------------------------------
+    if cmd == "submit":
+        if not args:
+            return "Usage: submit <jcl-file>", cwd, 1
+        target_path = _resolve_path(args[0])
+        try:
+            content = vfs.readfile(target_path)
+        except VFSError as e:
+            return str(e), cwd, 1
+        if not content.strip().startswith("//"):
+            return f"IEF236I {args[0]} - JCL SYNTAX ERROR - NOT A VALID JCL MEMBER", cwd, 1
+        import random
+        jobid = f"JOB{random.randint(10000, 99999)}"
+        jobname_line = content.splitlines()[0]
+        jobname = jobname_line[2:].split()[0] if len(jobname_line) > 2 else "UNKNOWN"
+        return _output(
+            f"IEF236I SUBMIT {args[0]}\n"
+            f"IEF237I JES2 JOB QUEUE ACCEPTED\n"
+            f"IEF233I JOBNAME={jobname:<8} JOBID={jobid}"
+        )
+
+    # ------------------------------------------------------------------
+    # write (one-liner file write)
+    # ------------------------------------------------------------------
+    if cmd == "write":
+        if len(args) < 2:
+            return "Usage: write <path> <content>", cwd, 1
+        target_path = _resolve_path(args[0])
+        content = " ".join(args[1:])
+        try:
+            vfs.write(target_path, content, owner=username)
+            return "", cwd, 0
+        except VFSError as e:
+            return str(e), cwd, 1
+
+    # ------------------------------------------------------------------
+    # vi / edit — redirect to GUI editor hint
+    # ------------------------------------------------------------------
+    if cmd in ("vi", "vim", "edit"):
+        if not args:
+            return f"{cmd}: missing file operand", cwd, 1
+        return _output(
+            f"ISPF EDIT panel opens for {args[0]} — use the GUI editor (E line command in USS Browser)"
+        )
+
+    # ------------------------------------------------------------------
     # Unknown command
     # ------------------------------------------------------------------
     return f"-sh: {cmd}: command not found", cwd, 127

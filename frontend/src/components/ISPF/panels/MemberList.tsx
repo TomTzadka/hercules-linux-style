@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { ISPFScreen } from '../ISPFScreen'
-import { getDataset } from '../../../api/datasets'
+import { getDataset, deleteMember } from '../../../api/datasets'
 import type { DatasetDetail } from '../../../api/datasets'
 import type { PanelEntry } from '../../../hooks/useNavigation'
 
@@ -30,14 +30,34 @@ export function MemberList({ dsn, onNavigate, onBack }: Props) {
     onNavigate({ id: 'view', params: { dsn, member, label: `${dsn}(${member})` } })
   }
 
+  const edit = (member: string) => {
+    onNavigate({ id: 'edit', params: { dsn, member } })
+  }
+
+  const doDelete = async (member: string) => {
+    try {
+      await deleteMember(dsn, member)
+      setDetail(prev => prev
+        ? { ...prev, members: prev.members.filter(m => m.name !== member) }
+        : prev
+      )
+      setMsg(`MEMBER ${member} DELETED`)
+      setMsgType('ok')
+    } catch {
+      setMsg(`DELETE FAILED: ${member}`)
+      setMsgType('err')
+    }
+  }
+
   const handleRowEnter = (e: React.KeyboardEvent<HTMLInputElement>, member: string, idx: number) => {
     if (e.key === 'Enter') {
       const c = (cmdsRef.current[String(idx)] || '').trim().toUpperCase()
-      if (c === '' || c === 'B' || c === 'E' || c === 'V' || c === 'S') {
+      if (c === '' || c === 'B' || c === 'V' || c === 'S') {
         open(member)
+      } else if (c === 'E') {
+        edit(member)
       } else if (c === 'D') {
-        setMsg(`CANNOT DELETE MEMBER (READ-ONLY DEMO)`)
-        setMsgType('err')
+        doDelete(member)
       } else {
         setMsg(`UNKNOWN LINE COMMAND: ${c}`)
         setMsgType('err')

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { ISPFScreen } from '../ISPFScreen'
-import { listDatasets } from '../../../api/datasets'
+import { listDatasets, deleteDataset } from '../../../api/datasets'
 import type { DatasetInfo } from '../../../api/datasets'
 import type { PanelEntry } from '../../../hooks/useNavigation'
 
@@ -62,8 +62,16 @@ export function DatasetList({ initialFilter = '', onNavigate, onBack }: Props) {
       return
     }
     if (c === 'D') {
-      setMsg(`CANNOT DELETE: ${ds.dsn} (READ-ONLY DEMO)`)
-      setMsgType('err')
+      deleteDataset(ds.dsn)
+        .then(() => {
+          setDatasets(prev => prev.filter(d => d.dsn !== ds.dsn))
+          setMsg(`DATASET ${ds.dsn} DELETED`)
+          setMsgType('ok')
+        })
+        .catch(() => {
+          setMsg(`DELETE FAILED: ${ds.dsn}`)
+          setMsgType('err')
+        })
       return
     }
     setMsg(`UNKNOWN COMMAND: ${c}`)
