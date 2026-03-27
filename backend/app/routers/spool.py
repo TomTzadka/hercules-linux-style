@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, validator
-from app.dependencies import get_jobs, JobEngine
+from app.dependencies import get_jobs, JobEngine, limiter
 from app.models.responses import ok, err, APIResponse
 
 router = APIRouter(prefix="/api/spool", tags=["spool"])
@@ -60,7 +60,8 @@ def cancel_job(jobid: str, jobs: JobEngine = Depends(get_jobs)):
 
 
 @router.post("/submit", response_model=APIResponse)
-def submit_jcl(body: SubmitBody, jobs: JobEngine = Depends(get_jobs)):
+@limiter.limit("10/minute")
+def submit_jcl(request: Request, body: SubmitBody, jobs: JobEngine = Depends(get_jobs)):
     try:
         job = jobs.submit(body.jcl, body.owner)
         return ok(_job_meta(job))

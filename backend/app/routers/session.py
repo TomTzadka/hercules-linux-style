@@ -1,7 +1,9 @@
+import os
 import uuid
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException
-from app.dependencies import get_vfs, VFSEngine
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
+from app.dependencies import get_vfs, VFSEngine, limiter
 from app.models.responses import ok, err, APIResponse
 
 router = APIRouter(prefix="/api/session", tags=["session"])
@@ -12,8 +14,16 @@ _sessions: dict = {}
 SESSION_TTL = timedelta(hours=8)
 
 
+class LoginBody(BaseModel):
+    password: str = ""
+
+
 @router.post("/new", response_model=APIResponse)
-def new_session(vfs: VFSEngine = Depends(get_vfs)):
+@limiter.limit("5/minute")
+def new_session(request: Request, body: LoginBody, vfs: VFSEngine = Depends(get_vfs)):
+    demo_password = os.environ.get("DEMO_PASSWORD", "")
+    if demo_password and body.password != demo_password:
+        return err("ICH408I USER(TOMTZ) GROUP(SYS1) - RACF: INVALID PASSWORD")
     session_id = str(uuid.uuid4())
     username = "TOMTZ"
     cwd = "/u/tomtz"

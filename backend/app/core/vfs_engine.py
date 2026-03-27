@@ -78,12 +78,26 @@ class VFSEngine:
             raise VFSError(f"Not a directory: {path}")
         return list(node.children.values())
 
-    def readfile(self, path: str) -> str:
+    def _can_read(self, node: VFSNode, username: str) -> bool:
+        perms = (node.permissions or "rw-r--r--").ljust(9, "-")
+        if username.upper() == (node.owner or "").upper():
+            return perms[0] == 'r'
+        return perms[6] == 'r'
+
+    def _can_write(self, node: VFSNode, username: str) -> bool:
+        perms = (node.permissions or "rw-r--r--").ljust(9, "-")
+        if username.upper() == (node.owner or "").upper():
+            return perms[1] == 'w'
+        return perms[7] == 'w'
+
+    def readfile(self, path: str, username: str = "") -> str:
         node = self.resolve(path)
         if node is None:
             raise VFSError(f"No such file or directory: {path}")
         if node.node_type != NodeType.FILE:
             raise VFSError(f"Is a directory: {path}")
+        if username and not self._can_read(node, username):
+            raise VFSError(f"Permission denied: {path}")
         return node.content or ""
 
     def stat(self, path: str) -> dict:
@@ -160,11 +174,13 @@ class VFSEngine:
             return existing
         return self._make_node(path, NodeType.FILE, owner=owner)
 
-    def write(self, path: str, content: str, owner: str = "HERC01") -> VFSNode:
+    def write(self, path: str, content: str, owner: str = "HERC01", username: str = "") -> VFSNode:
         existing = self.resolve(path)
         if existing is not None:
             if existing.node_type != NodeType.FILE:
                 raise VFSError(f"Is a directory: {path}")
+            if username and not self._can_write(existing, username):
+                raise VFSError(f"Permission denied: {path}")
             existing.content = content
             existing.update_size()
             existing.modified = datetime.utcnow()

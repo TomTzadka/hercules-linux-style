@@ -23,7 +23,7 @@ import './styles/global.css'
 import './styles/ispf.css'
 
 export default function App() {
-  const { session, loading, updateCwd } = useSession()
+  const { session, loading, createSession, updateCwd } = useSession()
   const nav = useNavigation({ id: 'login', params: {} })
 
   // Apply saved color theme on mount
@@ -38,7 +38,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [nav])
 
-  if (loading || !session) {
+  if (loading) {
     return (
       <div style={{
         height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -51,7 +51,9 @@ export default function App() {
   }
 
   const { current } = nav
-  const { sessionId, cwd, username } = session
+  const sessionId = session?.sessionId ?? ''
+  const cwd = session?.cwd ?? '/'
+  const username = session?.username ?? 'HERC01'
 
   // Render the current panel
   switch (current.id) {
@@ -59,8 +61,10 @@ export default function App() {
     case 'login':
       return (
         <LoginPanel
-          onLogin={() => {
-            nav.replace({ id: 'primary', params: {} })
+          onLogin={async (_userid, password) => {
+            const ok = await createSession(password)
+            if (ok) nav.replace({ id: 'primary', params: {} })
+            return ok
           }}
         />
       )

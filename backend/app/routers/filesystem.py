@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, Query
 from pydantic import BaseModel, validator
 from app.dependencies import get_vfs, VFSEngine
 from app.core.vfs_engine import VFSError
 from app.models.responses import ok, err, APIResponse
+from app.routers.session import get_session_username
 
 router = APIRouter(prefix="/api/fs", tags=["filesystem"])
 
@@ -50,9 +51,14 @@ def ls(path: str = Query("/"), session_id: str = Query(""), vfs: VFSEngine = Dep
 
 
 @router.get("/cat", response_model=APIResponse)
-def cat(path: str = Query(...), session_id: str = Query(""), vfs: VFSEngine = Depends(get_vfs)):
+def cat(
+    path: str = Query(...),
+    x_session_id: str = Header(default="", alias="X-Session-Id"),
+    vfs: VFSEngine = Depends(get_vfs),
+):
     try:
-        content = vfs.readfile(path)
+        username = get_session_username(x_session_id) if x_session_id else ""
+        content = vfs.readfile(path, username=username)
         return ok({"path": path, "content": content, "size": len(content)})
     except VFSError as e:
         return err(str(e))
@@ -87,7 +93,8 @@ def touch(body: TouchBody, vfs: VFSEngine = Depends(get_vfs)):
 @router.post("/write", response_model=APIResponse)
 def write_file(body: WriteBody, vfs: VFSEngine = Depends(get_vfs)):
     try:
-        node = vfs.write(body.path, body.content)
+        username = get_session_username(body.session_id) if body.session_id else ""
+        node = vfs.write(body.path, body.content, username=username)
         return ok({"name": node.name, "size": node.size})
     except VFSError as e:
         return err(str(e))

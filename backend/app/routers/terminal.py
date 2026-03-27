@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
-from app.dependencies import get_vfs, get_datasets, VFSEngine, DatasetEngine
+from app.dependencies import get_vfs, get_datasets, VFSEngine, DatasetEngine, limiter
 from app.core.command_parser import execute_command
 from app.routers.session import get_session_username
 from app.models.responses import ok, APIResponse
@@ -14,7 +14,9 @@ class ExecRequest(BaseModel):
 
 
 @router.post("/exec", response_model=APIResponse)
+@limiter.limit("30/minute")
 def exec_command(
+    request: Request,
     body: ExecRequest,
     vfs: VFSEngine = Depends(get_vfs),
     datasets: DatasetEngine = Depends(get_datasets),

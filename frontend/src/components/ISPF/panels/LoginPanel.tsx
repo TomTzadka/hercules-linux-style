@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 
 interface Props {
-  onLogin: (userid: string) => void
+  onLogin: (userid: string, password: string) => Promise<boolean>
 }
 
 const BOOT_LINES = [
@@ -41,10 +41,11 @@ export function LoginPanel({ onLogin }: Props) {
     return () => clearInterval(timer)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!userid.trim()) { setMsg('IKJ56700I ENTER VALID USERID'); return }
-    onLogin(userid.toUpperCase())
+    const ok = await onLogin(userid.toUpperCase(), password)
+    if (!ok) setMsg('ICH408I USER(' + userid.toUpperCase() + ') GROUP(SYS1) - RACF: INVALID PASSWORD')
   }
 
   const now = new Date()
