@@ -1,6 +1,7 @@
 services:
   db2:
     image: icr.io/db2_community/db2:latest
+    platform: linux/amd64   # DB2 CE has no ARM64 image; runs via Rosetta on Apple Silicon
     container_name: hercules-db2
     privileged: true
     environment:
