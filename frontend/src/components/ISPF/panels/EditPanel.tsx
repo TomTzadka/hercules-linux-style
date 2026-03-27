@@ -357,6 +357,7 @@ export function EditPanel({ ussPath, dsn, member, sessionId, onBack }: Props) {
     }
 
     if (v === 'END') {
+      localStorage.removeItem(recoveryKey)
       onBack()
       return
     }
@@ -385,6 +386,7 @@ export function EditPanel({ ussPath, dsn, member, sessionId, onBack }: Props) {
         setMsg('FILE NOT SAVED.  TYPE YES TO EXIT  OR  NO TO CANCEL.')
         setMsgType('err')
       } else {
+        localStorage.removeItem(recoveryKey)
         onBack()
       }
       return

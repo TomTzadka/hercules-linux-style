@@ -10,4 +10,9 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+RUN adduser -D appuser \
+    && chown -R appuser:appuser /var/cache/nginx /var/log/nginx /etc/nginx/conf.d \
+    && touch /var/run/nginx.pid \
+    && chown appuser:appuser /var/run/nginx.pid
+USER appuser
+EXPOSE 8080
