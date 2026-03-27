@@ -18,6 +18,7 @@ import { BatchPanel } from './components/ISPF/panels/BatchPanel'
 import { AllocatePanel } from './components/ISPF/panels/AllocatePanel'
 import { MoveCopyPanel } from './components/ISPF/panels/MoveCopyPanel'
 import { SearchForPanel } from './components/ISPF/panels/SearchForPanel'
+import { DB2Panel } from './components/ISPF/panels/DB2Panel'
 
 import './styles/global.css'
 import './styles/ispf.css'
@@ -202,6 +203,13 @@ export default function App() {
       return (
         <SearchForPanel
           initialDsn={current.params.searchDsn ?? ''}
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'db2':
+      return (
+        <DB2Panel
           onBack={() => nav.pop()}
         />
       )

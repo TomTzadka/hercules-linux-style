@@ -17,6 +17,7 @@ export type PanelId =
   | 'allocate'     // Utility 3.2
   | 'movecopy'     // Utility 3.3
   | 'searchfor'    // Utility 3.13
+  | 'db2'          // DB2 Interactive (SPUFI)
 
 export interface PanelParams {
   filter?: string

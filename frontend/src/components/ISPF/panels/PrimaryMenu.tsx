@@ -20,6 +20,7 @@ const OPTIONS = [
   { num: '9',  name: 'IBM Products','desc': 'IBM program development products' },
   { num: '10', name: 'SCLM',       desc: 'SW Configuration Library Manager' },
   { num: '11', name: 'Workplace',  desc: 'ISPF Object/Action Workplace' },
+  { num: 'D',  name: 'DB2',        desc: 'DB2 Interactive (SPUFI)' },
   { num: 'S',  name: 'SDSF',       desc: 'System Display and Search Facility' },
 ]
 
@@ -67,6 +68,10 @@ export function PrimaryMenu({ username, onNavigate, onLogout }: Props) {
       onNavigate({ id: 'command', params: {} })
       return
     }
+    if (o === 'D') {
+      onNavigate({ id: 'db2', params: {} })
+      return
+    }
     if (o === 'S') {
       onNavigate({ id: 'sdsf', params: {} })
       return
@@ -81,6 +86,7 @@ export function PrimaryMenu({ username, onNavigate, onLogout }: Props) {
       if (inner === '4') { onNavigate({ id: 'foreground', params: {} }); return }
       if (inner === '5') { onNavigate({ id: 'batch', params: {} }); return }
       if (inner === '6') { onNavigate({ id: 'command', params: {} }); return }
+      if (inner === 'D' || inner === 'd') { onNavigate({ id: 'db2', params: {} }); return }
       if (inner === 'S' || inner === 's') { onNavigate({ id: 'sdsf', params: {} }); return }
     }
     setMsg(`OPTION NOT AVAILABLE: ${o}`)
