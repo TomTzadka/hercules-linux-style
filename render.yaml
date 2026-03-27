@@ -9,3 +9,10 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
+      # DEMO_PASSWORD — set this in the Render dashboard, not here.
+      # If left unset (or empty), the simulator accepts any password.
+      # To enable auth: Dashboard → hercules-backend → Environment → Add variable
+      #   Key:   DEMO_PASSWORD
+      #   Value: <your chosen password>
+      - key: DEMO_PASSWORD
+        value: ""  # placeholder — override in Render dashboard
