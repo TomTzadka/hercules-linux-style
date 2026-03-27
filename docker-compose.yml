@@ -5,7 +5,7 @@ services:
     privileged: true
     environment:
       LICENSE: accept
-      DB2INST1_PASSWORD: H3rcules!
+      DB2INST1_PASSWORD: ${DB2_PASSWORD}
       DBNAME: HERCDB
     ports:
       - "50000:50000"
@@ -28,11 +28,12 @@ services:
       - "8000:8000"
     environment:
       - LOG_LEVEL=info
+      - DEMO_PASSWORD=${DEMO_PASSWORD}
       - DB2_HOST=db2
       - DB2_PORT=50000
       - DB2_DATABASE=HERCDB
       - DB2_USER=db2inst1
-      - DB2_PASSWORD=H3rcules!
+      - DB2_PASSWORD=${DB2_PASSWORD}
     depends_on:
       db2:
         condition: service_healthy
