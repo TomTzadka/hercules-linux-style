@@ -3,8 +3,19 @@ Simple REXX interpreter for the Mainframe Simulator.
 Supports: SAY, assignment, IF/THEN/DO/END, DO loops, EXIT, /* comments */.
 """
 from __future__ import annotations
+import ast
+import operator
 import re
+import time
 from typing import Any
+
+
+# Safe comparison operators — used instead of eval() in _eval_cond
+_CMP_OPS = {
+    '==': operator.eq, '!=': operator.ne,
+    '>=': operator.ge, '<=': operator.le,
+    '>':  operator.gt, '<':  operator.lt,
+}
 
 
 class RexxError(Exception):
@@ -13,6 +24,8 @@ class RexxError(Exception):
 
 class RexxInterpreter:
     MAX_ITERATIONS = 10_000
+    MAX_OUTPUT_LINES = 1_000
+    MAX_EXEC_SECONDS = 5.0
 
     def __init__(self) -> None:
         self.vars: dict[str, Any] = {
@@ -25,6 +38,7 @@ class RexxInterpreter:
         self.output: list[str] = []
         self.exit_code: int = 0
         self._iter_count: int = 0
+        self._deadline: float = 0.0
 
     # ------------------------------------------------------------------
     # Public entry point
@@ -32,6 +46,7 @@ class RexxInterpreter:
     def run(self, source: str) -> tuple[str, int]:
         """Execute REXX source. Returns (output_text, exit_code)."""
         lines = self._strip_comments(source.split('\n'))
+        self._deadline = time.monotonic() + self.MAX_EXEC_SECONDS
         try:
             self._exec(lines, 0, len(lines))
         except _ExitSignal as e:
@@ -74,6 +89,8 @@ class RexxInterpreter:
             self._iter_count += 1
             if self._iter_count > self.MAX_ITERATIONS:
                 raise RexxError("MAXIMUM ITERATIONS EXCEEDED")
+            if time.monotonic() > self._deadline:
+                raise RexxError("REXX EXECUTION TIMEOUT — 5 SECONDS EXCEEDED")
 
             raw = lines[i]
             line = raw.strip()
@@ -87,6 +104,8 @@ class RexxInterpreter:
             # ---- SAY ----
             if upper == 'SAY' or upper.startswith('SAY ') or upper.startswith('SAY\t'):
                 rest = line[3:].strip()
+                if len(self.output) >= self.MAX_OUTPUT_LINES:
+                    raise RexxError("REXX OUTPUT LIMIT EXCEEDED")
                 self.output.append(str(self._eval(rest)))
                 i += 1
                 continue
@@ -291,10 +310,33 @@ class RexxInterpreter:
         # Remove string quotes
         resolved = re.sub(r"'[^']*'|\"[^\"]*\"", lambda m: m.group(0)[1:-1], resolved)
         try:
-            result = eval(resolved, {"__builtins__": {}}, {})
-            return float(result)
+            return float(self._safe_eval_num(resolved))
         except Exception:
             return 0.0
+
+    @staticmethod
+    def _safe_eval_num(expr: str) -> float:
+        """Evaluate a numeric expression safely using AST — no eval()."""
+        _OPS = {
+            ast.Add: operator.add, ast.Sub: operator.sub,
+            ast.Mult: operator.mul, ast.Div: operator.truediv,
+            ast.Mod: operator.mod, ast.Pow: operator.pow,
+            ast.FloorDiv: operator.floordiv,
+        }
+
+        def _node(n: ast.expr) -> float:
+            if isinstance(n, ast.Constant):
+                return float(n.value)
+            if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub):
+                return -_node(n.operand)
+            if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.UAdd):
+                return _node(n.operand)
+            if isinstance(n, ast.BinOp) and type(n.op) in _OPS:
+                return _OPS[type(n.op)](_node(n.left), _node(n.right))
+            raise ValueError(f"Unsupported node: {ast.dump(n)}")
+
+        tree = ast.parse(expr.strip(), mode='eval')
+        return _node(tree.body)
 
     def _eval_cond(self, cond: str) -> bool:
         """Evaluate a boolean condition."""
@@ -308,11 +350,9 @@ class RexxInterpreter:
                     left  = str(self._eval(parts[0].strip()))
                     right = str(self._eval(parts[1].strip()))
                     try:
-                        # Try numeric comparison
-                        return eval(f"{float(left)} {py_op} {float(right)}", {"__builtins__": {}}, {})
+                        return _CMP_OPS[py_op](float(left), float(right))
                     except ValueError:
-                        # String comparison
-                        return eval(f"{repr(left)} {py_op} {repr(right)}", {"__builtins__": {}}, {})
+                        return _CMP_OPS[py_op](left, right)
                     except Exception:
                         return False
         return bool(self._eval(cond))

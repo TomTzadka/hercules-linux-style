@@ -1,14 +1,22 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from app.dependencies import get_jobs, JobEngine
 from app.models.responses import ok, err, APIResponse
 
 router = APIRouter(prefix="/api/spool", tags=["spool"])
 
+_JCL_MAX_BYTES = 64_000
+
 
 class SubmitBody(BaseModel):
     jcl: str
     owner: str = "TOMTZ"
+
+    @validator('jcl')
+    def jcl_max_size(cls, v: str) -> str:
+        if len(v.encode()) > _JCL_MAX_BYTES:
+            raise ValueError("JCL exceeds maximum size of 64KB")
+        return v
 
 
 def _job_meta(job):

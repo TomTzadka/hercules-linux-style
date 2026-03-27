@@ -1,12 +1,15 @@
 import uuid
-from fastapi import APIRouter, Depends
+from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_vfs, VFSEngine
 from app.models.responses import ok, err, APIResponse
 
 router = APIRouter(prefix="/api/session", tags=["session"])
 
-# In-memory session store: session_id -> {username, cwd}
+# In-memory session store: session_id -> {username, cwd, created}
 _sessions: dict = {}
+
+SESSION_TTL = timedelta(hours=8)
 
 
 @router.post("/new", response_model=APIResponse)
@@ -15,7 +18,7 @@ def new_session(vfs: VFSEngine = Depends(get_vfs)):
     username = "TOMTZ"
     cwd = "/u/tomtz"
     vfs.set_cwd(session_id, cwd)
-    _sessions[session_id] = {"username": username, "cwd": cwd}
+    _sessions[session_id] = {"username": username, "cwd": cwd, "created": datetime.now()}
     return ok({"session_id": session_id, "cwd": cwd, "username": username})
 
 
@@ -37,4 +40,10 @@ def delete_session(session_id: str, vfs: VFSEngine = Depends(get_vfs)):
 
 
 def get_session_username(session_id: str) -> str:
-    return _sessions.get(session_id, {}).get("username", "TOMTZ")
+    s = _sessions.get(session_id)
+    if not s:
+        return "TOMTZ"
+    if datetime.now() - s["created"] > SESSION_TTL:
+        del _sessions[session_id]
+        raise HTTPException(status_code=401, detail="Session expired")
+    return s["username"]

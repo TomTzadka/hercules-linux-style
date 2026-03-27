@@ -1,16 +1,24 @@
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from app.dependencies import get_vfs, VFSEngine
 from app.core.vfs_engine import VFSError
 from app.models.responses import ok, err, APIResponse
 
 router = APIRouter(prefix="/api/fs", tags=["filesystem"])
 
+_FILE_MAX_BYTES = 64_000
+
 
 class WriteBody(BaseModel):
     path: str
     content: str
     session_id: str = ""
+
+    @validator('content')
+    def content_max_size(cls, v: str) -> str:
+        if len(v.encode()) > _FILE_MAX_BYTES:
+            raise ValueError("File content exceeds maximum size of 64KB")
+        return v
 
 
 class MkdirBody(BaseModel):

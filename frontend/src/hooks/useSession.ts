@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import client from '../api/client'
+import client, { setSessionId } from '../api/client'
 
 export interface Session {
   sessionId: string
@@ -14,6 +14,7 @@ export function useSession() {
   useEffect(() => {
     client.post('/session/new').then((res) => {
       const { session_id, cwd, username } = res.data.data
+      setSessionId(session_id)
       setSession({ sessionId: session_id, cwd, username })
       setLoading(false)
     })

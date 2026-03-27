@@ -5,4 +5,8 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+export function setSessionId(id: string) {
+  client.defaults.headers.common['X-Session-Id'] = id
+}
+
 export default client
