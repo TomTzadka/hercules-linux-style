@@ -33,3 +33,7 @@ export async function submitJcl(jcl: string, owner: string): Promise<SpoolJobInf
 export async function deleteSpoolJob(jobid: string): Promise<void> {
   await client.delete(`/spool/jobs/${jobid}`)
 }
+
+export async function cancelSpoolJob(jobid: string): Promise<void> {
+  await client.post(`/spool/jobs/${jobid}/cancel`)
+}

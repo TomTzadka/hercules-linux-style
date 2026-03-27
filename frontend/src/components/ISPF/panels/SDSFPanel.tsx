@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { ISPFScreen } from '../ISPFScreen'
 import client from '../../../api/client'
-import { listSpoolJobs, getSpoolJob, deleteSpoolJob } from '../../../api/spool'
+import { listSpoolJobs, getSpoolJob, deleteSpoolJob, cancelSpoolJob } from '../../../api/spool'
 import type { SpoolJobInfo } from '../../../api/spool'
 import type { PanelEntry } from '../../../hooks/useNavigation'
 
@@ -23,11 +23,12 @@ const STATIC_STCS: AllJob[] = [
 ]
 
 const STATUS_CLASSES: Record<string, string> = {
-  CC0000: 'sdsf-status--cc0',
-  CC0004: 'sdsf-status--cc4',
-  CC0008: 'sdsf-status--cc8',
-  ACTIVE: 'sdsf-status--run',
-  INPUT:  '',
+  CC0000:    'sdsf-status--cc0',
+  CC0004:    'sdsf-status--cc4',
+  CC0008:    'sdsf-status--cc8',
+  ACTIVE:    'sdsf-status--run',
+  INPUT:     '',
+  CANCELLED: 'sdsf-status--cc8',
 }
 
 type View = 'ST' | 'LOG' | 'H' | 'DA'
@@ -170,8 +171,19 @@ export function SDSFPanel({ sessionId, onNavigate, onBack }: Props) {
         npVals.current[idx] = ''
         if (npRefs.current[idx]) npRefs.current[idx]!.value = ''
       } else if (val === 'C') {
-        setMsg(`CANCEL NOT SUPPORTED FOR ${job.jobid} IN SIMULATOR`)
-        setMsgType('info')
+        if (job.isStc) {
+          setMsg(`$HASP395 ${job.jobname} — CANCEL NOT ALLOWED FOR STARTED TASKS`)
+          setMsgType('err')
+        } else {
+          cancelSpoolJob(job.jobid).then(() => {
+            setMsg(`$HASP395 ${job.jobname} — ${job.jobid} CANCELLED`)
+            setMsgType('ok')
+            refreshJobs()
+          }).catch(() => {
+            setMsg(`CANCEL FAILED FOR ${job.jobid}`)
+            setMsgType('err')
+          })
+        }
         npVals.current[idx] = ''
         if (npRefs.current[idx]) npRefs.current[idx]!.value = ''
       }
@@ -292,7 +304,7 @@ export function SDSFPanel({ sessionId, onNavigate, onBack }: Props) {
           </div>
 
           {allJobs.map((job, idx) => {
-            const maxrc = job.status === 'ACTIVE' ? 'STC' : job.status.replace('CC', '')
+            const maxrc = job.status === 'ACTIVE' ? 'STC' : job.status === 'CANCELLED' ? 'CNCL' : job.status.replace('CC', '')
             return (
               <div
                 key={job.jobid}

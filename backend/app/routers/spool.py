@@ -44,6 +44,13 @@ def delete_job(jobid: str, jobs: JobEngine = Depends(get_jobs)):
     return err(f"Job {jobid} not found in spool")
 
 
+@router.post("/jobs/{jobid}/cancel", response_model=APIResponse)
+def cancel_job(jobid: str, jobs: JobEngine = Depends(get_jobs)):
+    if jobs.cancel_job(jobid):
+        return ok({"cancelled": jobid})
+    return err(f"Job {jobid} not found in spool")
+
+
 @router.post("/submit", response_model=APIResponse)
 def submit_jcl(body: SubmitBody, jobs: JobEngine = Depends(get_jobs)):
     try:

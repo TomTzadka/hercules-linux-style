@@ -78,6 +78,51 @@ def _generate_output(jobid: str, jobname: str, job_class: str,
     )
 
 
+def _validate_jcl(jcl: str) -> None:
+    """Raise ValueError with a JES2-style message if JCL is invalid."""
+    lines = jcl.splitlines()
+
+    # Check first non-blank line starts with //
+    first = next((l for l in lines if l.strip()), "")
+    if not first.startswith("//"):
+        raise ValueError(
+            "JCLC001E STATEMENT 1 — FIRST CHARACTER NOT '/' — RC=12"
+        )
+
+    # Check line lengths (content must fit in columns 1-72; 73-80 are sequence)
+    for i, line in enumerate(lines, 1):
+        if len(line) > 80:
+            raise ValueError(
+                f"JCLC002W STATEMENT {i} — LINE EXCEEDS 80 COLUMNS — RC=4\n"
+                f"  '{line[:40]}...'"
+            )
+
+    # Extract non-comment JCL statements
+    stmts = [l for l in lines if l.startswith("//") and not l.startswith("//*")]
+
+    # Must have a JOB card
+    has_job = any(
+        len(l[2:].split()) >= 2 and l[2:].split()[1].upper() == "JOB"
+        for l in stmts
+    )
+    if not has_job:
+        raise ValueError(
+            "JCLC003E NO JOB STATEMENT FOUND — A JOB CARD IS REQUIRED — RC=8\n"
+            "  EXPECTED: //JOBNAME JOB ..."
+        )
+
+    # Must have at least one EXEC statement
+    has_exec = any(
+        len(l[2:].split()) >= 2 and l[2:].split()[1].upper().startswith("EXEC")
+        for l in stmts
+    )
+    if not has_exec:
+        raise ValueError(
+            "JCLC004E NO EXEC STATEMENT FOUND — AT LEAST ONE STEP IS REQUIRED — RC=8\n"
+            "  EXPECTED: //STEPNAME EXEC PGM=..."
+        )
+
+
 class JobEngine:
     def __init__(self) -> None:
         self._jobs: dict[str, SpoolJob] = {}
@@ -88,10 +133,17 @@ class JobEngine:
             if jid not in self._jobs:
                 return jid
 
+    def cancel_job(self, jobid: str) -> bool:
+        """Set job status to CANCELLED without removing it from spool."""
+        key = jobid.upper()
+        if key in self._jobs:
+            self._jobs[key].status = "CANCELLED"
+            return True
+        return False
+
     def submit(self, jcl: str, owner: str) -> SpoolJob:
         """Validate, store, and return a new spool job."""
-        if not jcl.strip().startswith("//"):
-            raise ValueError("JCL SYNTAX ERROR — first statement must start with //")
+        _validate_jcl(jcl)
 
         jobname, job_class = _parse_jobname(jcl)
         jobid = self._new_jobid()
