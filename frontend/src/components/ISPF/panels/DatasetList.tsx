@@ -171,6 +171,11 @@ export function DatasetList({ initialFilter = '', onNavigate, onBack }: Props) {
             if (ds.dsorg === 'PO') onNavigate({ id: 'members', params: { dsn: ds.dsn } })
             else onNavigate({ id: 'view', params: { dsn: ds.dsn, label: ds.dsn } })
           }}
+          onTouchEnd={(e) => {
+            e.preventDefault()
+            if (ds.dsorg === 'PO') onNavigate({ id: 'members', params: { dsn: ds.dsn } })
+            else onNavigate({ id: 'view', params: { dsn: ds.dsn, label: ds.dsn } })
+          }}
         >
           <input
             className="ds-line-cmd"

@@ -107,7 +107,6 @@ export function LoginPanel({ onLogin }: Props) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="________"
                 />
-                <span style={{ color: 'var(--z-cyan)', fontSize: 11, marginLeft: 4 }}>(enter password)</span>
               </div>
               <div className="login-field">
                 <span className="login-label"> Procedure name  {'===>'}{' '}</span>
@@ -127,17 +126,17 @@ export function LoginPanel({ onLogin }: Props) {
                   autoComplete="off"
                 />
               </div>
-              <div className="login-field">
-                <span className="login-label"> New password    {'===>'}{' '}</span>
-                <span style={{ color: 'var(--z-green)', opacity: 0.3 }}>________</span>
-                <span style={{ color: 'var(--z-cyan)', fontSize: 11, marginLeft: 4 }}>(to change password)</span>
-              </div>
               <div className="login-enter">
                 {msg
                   ? <span style={{ color: 'var(--z-red)' }}>{msg}</span>
                   : <span>{'PF1/PF13=Help  PF3/PF15=Logoff  PA1=Attention'}</span>
                 }
               </div>
+              {/* Tap button for mobile — hidden on desktop via CSS */}
+              <button type="submit" className="login-mobile-btn">
+                ENTER / LOGON
+              </button>
+              {/* Hidden submit for Enter key on desktop */}
               <button type="submit" style={{ display: 'none' }} />
             </form>
           </div>

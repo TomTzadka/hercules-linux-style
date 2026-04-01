@@ -405,6 +405,20 @@ body::after {
   width: 40ch; padding: 0 2px;
 }
 
+/* ── Edit Panel Mobile Toolbar ── */
+.edit-mobile-toolbar {
+  display: none; /* hidden on desktop */
+  gap: 4px; padding: 4px 8px;
+  border-bottom: 1px solid var(--z-sep);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+.edit-mobile-tool-btn {
+  background: none; border: 1px solid var(--z-sep);
+  color: var(--z-cyan); font-family: var(--font);
+  font-size: 11px; padding: 4px 10px; cursor: pointer;
+}
+.edit-mobile-tool-btn:active { background: var(--z-sel-bg); color: var(--z-white); }
+
 /* Empty/loading states */
 .ispf-empty { color: var(--z-green); padding: 8px 4px; font-size: 12px; }
 .ispf-loading { color: var(--z-yellow); padding: 4px; animation: blink-y 1s step-start infinite; }
@@ -418,3 +432,220 @@ body::after {
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #001100; }
 ::-webkit-scrollbar-thumb { background: #005500; border-radius: 2px; }
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE BOTTOM ACTION BAR (touch-friendly PF key strip)
+   ══════════════════════════════════════════════════════════════ */
+.ispf-mobile-bar {
+  display: none; /* hidden on desktop */
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HAMBURGER DRAWER (mobile action menu)
+   ══════════════════════════════════════════════════════════════ */
+.ispf-drawer-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.7);
+}
+.ispf-drawer-overlay--open { display: block; }
+.ispf-drawer {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 220px;
+  background: var(--z-action-bg);
+  border-right: 1px solid var(--z-sep);
+  display: flex; flex-direction: column;
+  padding: 8px 0;
+}
+.ispf-drawer-title {
+  color: var(--z-white); padding: 8px 16px 12px;
+  font-size: 12px; border-bottom: 1px solid #003388;
+  margin-bottom: 4px;
+}
+.ispf-drawer-item {
+  color: var(--z-action-fg); padding: 10px 16px;
+  cursor: pointer; font-size: var(--fz);
+  font-family: var(--font);
+  background: none; border: none; text-align: left;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.ispf-drawer-item:hover, .ispf-drawer-item:active { background: #003399; }
+
+/* Hamburger button — hidden on desktop */
+.ispf-hamburger {
+  display: none;
+  background: none; border: none;
+  color: var(--z-action-fg); font-size: 18px;
+  font-family: var(--font); cursor: pointer;
+  padding: 0 10px; line-height: 1;
+}
+
+/* Mobile title in action bar — hidden on desktop */
+.ispf-mobile-title { display: none !important; }
+.ispf-mobile-short-msg { display: none !important; }
+
+/* Login mobile button — hidden on desktop */
+.login-mobile-btn { display: none; }
+
+/* Member mobile actions — hidden on desktop */
+.mbr-mobile-actions { display: none; }
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE (≤768px)
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root { --fz: 14px; }
+
+  /* Prevent iOS from zooming inputs */
+  input, textarea, select { font-size: 16px !important; }
+
+  /* Login */
+  .login-screen { justify-content: flex-start; padding-top: 16px; }
+  .login-box { min-width: unset; width: 95vw; padding: 16px 12px; }
+  .login-title { font-size: 15px; }
+  .login-label { width: auto; min-width: 140px; font-size: 12px; }
+  .login-input { width: 100%; flex: 1; }
+  .login-field { flex-wrap: wrap; gap: 4px; }
+  .login-mobile-btn {
+    display: block; width: 100%; margin-top: 16px;
+    background: var(--z-action-bg); color: var(--z-white);
+    border: 1px solid var(--z-cyan); font-family: var(--font);
+    font-size: 14px; padding: 12px; cursor: pointer; letter-spacing: 1px;
+  }
+  .login-mobile-btn:active { background: #003399; }
+
+  /* Primary menu */
+  .primary-layout { flex-direction: column; }
+  .primary-sysinfo { display: none; }
+  .primary-opt-row {
+    min-height: 52px; align-items: center;
+    border-bottom: 1px solid var(--z-sep); padding: 8px 12px;
+  }
+  .primary-opt-num { width: 3ch; font-size: 15px; }
+  .primary-opt-name { width: auto; margin-right: 12px; font-size: 14px; }
+  .primary-opt-desc { font-size: 11px; color: var(--z-green); opacity: 0.8; }
+  .primary-opt-sep { display: none; }
+
+  /* Dataset list — card rows */
+  .ds-colheader { display: none; }
+  .ds-row-wrap {
+    flex-wrap: wrap; min-height: 48px; padding: 8px 12px;
+    border-bottom: 1px solid var(--z-sep); align-items: flex-start;
+    gap: 4px;
+  }
+  .ds-line-cmd { width: 3ch; flex-shrink: 0; align-self: center; }
+  .ds-col-name { width: 100%; font-size: 14px; overflow: visible; white-space: normal; }
+  .ds-col-org, .ds-col-recfm, .ds-col-lrecl, .ds-col-vol, .ds-col-ref {
+    width: auto; font-size: 11px; flex-shrink: 0;
+  }
+  .ds-col-lrecl { text-align: left; padding-right: 0; }
+
+  /* Member list — card rows */
+  .mbr-colheader { display: none; }
+  .mbr-row-wrap {
+    flex-wrap: wrap; min-height: 48px; padding: 8px 12px;
+    border-bottom: 1px solid var(--z-sep); align-items: flex-start;
+    gap: 4px; position: relative;
+  }
+  .mbr-line-cmd { width: 3ch; flex-shrink: 0; align-self: center; }
+  .mbr-col-name { width: auto; font-size: 14px; flex-shrink: 0; }
+  .mbr-col-vvmm, .mbr-col-created, .mbr-col-changed, .mbr-col-size, .mbr-col-id {
+    width: auto; font-size: 11px; flex-shrink: 0;
+  }
+  /* Mobile action buttons for members */
+  .mbr-mobile-actions {
+    display: flex; gap: 6px; margin-left: auto; align-self: center;
+  }
+  .mbr-mobile-btn {
+    background: none; border: 1px solid var(--z-sep);
+    color: var(--z-yellow); font-family: var(--font);
+    font-size: 11px; padding: 4px 8px; cursor: pointer; min-height: 28px;
+  }
+  .mbr-mobile-btn:active { background: var(--z-sel-bg); }
+
+  /* USS browser — card rows */
+  .uss-colheader { display: none; }
+  .uss-path-row { padding: 6px 12px; font-size: 12px; }
+  .uss-row-wrap {
+    flex-wrap: wrap; min-height: 44px; padding: 6px 12px;
+    border-bottom: 1px solid var(--z-sep); align-items: center;
+    gap: 4px;
+  }
+  .uss-line-cmd { width: 3ch; flex-shrink: 0; }
+  .uss-col-name { width: auto; max-width: 55vw; font-size: 13px; flex-shrink: 0; }
+  .uss-col-perm, .uss-col-owner, .uss-col-size, .uss-col-mod {
+    width: auto; font-size: 10px; flex-shrink: 0;
+  }
+
+  /* SDSF — card rows */
+  .sdsf-colheader { display: none; }
+  .sdsf-row {
+    flex-wrap: wrap; min-height: 52px; padding: 8px 12px;
+    border-bottom: 1px solid var(--z-sep); align-items: flex-start;
+    gap: 4px;
+  }
+  .sdsf-col-np { width: 3ch; }
+  .sdsf-col-jobname { width: auto; font-size: 14px; flex-shrink: 0; }
+  .sdsf-col-jobid   { width: auto; font-size: 12px; flex-shrink: 0; }
+  .sdsf-col-owner, .sdsf-col-prty, .sdsf-col-queue, .sdsf-col-c, .sdsf-col-maxrc {
+    width: auto; font-size: 11px; flex-shrink: 0;
+  }
+  .sdsf-col-status  { width: 100%; font-size: 11px; }
+
+  /* Edit panel: allow horizontal scroll for code, show toolbar */
+  .ispf-body { overflow-x: auto; }
+  .edit-mobile-toolbar { display: flex; }
+
+  /* Filter input */
+  .ispf-filter-input { width: 100%; }
+  .ispf-filter-row { flex-wrap: wrap; }
+
+  /* Command input row */
+  .ispf-cmd-row { padding: 4px 8px; }
+  .ispf-cmd-label { font-size: 12px; }
+
+  /* Title row */
+  .ispf-title-row { padding: 2px 8px; }
+  .ispf-panel-title { font-size: 13px; }
+  .ispf-title-right { display: none; }
+
+  /* Separator lines: shorter on mobile */
+  .ispf-sep-line { font-size: 10px; letter-spacing: -0.5px; }
+
+  /* Hamburger: visible on mobile */
+  .ispf-hamburger { display: block; }
+
+  /* Mobile title in action bar */
+  .ispf-mobile-title { display: block !important; }
+  .ispf-mobile-short-msg { display: block !important; }
+
+  /* Desktop title row: hide on mobile (shown in action bar instead) */
+  .ispf-title-row { display: none; }
+
+  /* Action bar items: hidden on mobile (replaced by hamburger) */
+  .ispf-action-bar {
+    justify-content: space-between; align-items: center; padding: 2px 4px;
+  }
+  .ispf-action-item { display: none; }
+  .ispf-action-item:first-child { display: none; }
+
+  /* Desktop PF key rows: hidden on mobile */
+  .ispf-pfkeys { display: none; }
+
+  /* Mobile bottom bar: shown on mobile */
+  .ispf-mobile-bar {
+    display: flex; flex-shrink: 0;
+    border-top: 1px solid var(--z-sep);
+    background: var(--z-bg);
+  }
+  .ispf-mobile-key {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 8px 4px; min-height: 52px;
+    background: none; border: none; border-right: 1px solid var(--z-sep);
+    cursor: pointer; font-family: var(--font);
+  }
+  .ispf-mobile-key:last-child { border-right: none; }
+  .ispf-mobile-key:active { background: var(--z-sel-bg); }
+  .ispf-mobile-key-label { color: var(--z-cyan); font-size: 10px; line-height: 1; }
+  .ispf-mobile-key-action { color: var(--z-white); font-size: 12px; line-height: 1.4; }
+}

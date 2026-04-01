@@ -787,6 +787,24 @@ export function EditPanel({ ussPath, dsn, member, sessionId, onBack }: Props) {
 
       {!loading && (
         <>
+          {/* Mobile quick-action toolbar */}
+          <div className="edit-mobile-toolbar">
+            {[
+              { label: 'SAVE', cmd: 'SAVE' },
+              { label: 'FIND', cmd: 'FIND ' },
+              { label: 'UNDO', cmd: 'UNDO' },
+              { label: 'COLS', cmd: 'COLS' },
+            ].map(({ label, cmd: c }) => (
+              <button
+                key={label}
+                className="edit-mobile-tool-btn"
+                onClick={(e) => { e.stopPropagation(); handleSubmit(c) }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           {/* COLS ruler */}
           {showCols && (
             <div className="edit-cols-ruler">

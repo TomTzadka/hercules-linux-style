@@ -19,6 +19,7 @@ import { AllocatePanel } from './components/ISPF/panels/AllocatePanel'
 import { MoveCopyPanel } from './components/ISPF/panels/MoveCopyPanel'
 import { SearchForPanel } from './components/ISPF/panels/SearchForPanel'
 import { DB2Panel } from './components/ISPF/panels/DB2Panel'
+import { CICSPanel } from './components/ISPF/panels/CICSPanel'
 
 import './styles/global.css'
 import './styles/ispf.css'
@@ -37,6 +38,22 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
+  }, [nav])
+
+  // Swipe-right gesture → go back (mobile)
+  useEffect(() => {
+    let touchStartX = 0
+    const onTouchStart = (e: TouchEvent) => { touchStartX = e.touches[0].clientX }
+    const onTouchEnd = (e: TouchEvent) => {
+      const deltaX = e.changedTouches[0].clientX - touchStartX
+      if (deltaX > 80 && touchStartX < 60) nav.pop()
+    }
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
+    }
   }, [nav])
 
   if (loading) {
@@ -210,6 +227,13 @@ export default function App() {
     case 'db2':
       return (
         <DB2Panel
+          onBack={() => nav.pop()}
+        />
+      )
+
+    case 'cics':
+      return (
+        <CICSPanel
           onBack={() => nav.pop()}
         />
       )

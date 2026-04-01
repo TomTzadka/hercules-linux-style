@@ -162,6 +162,11 @@ export function MemberList({ dsn, username, onNavigate, onBack }: Props) {
           <span className="mbr-col-changed"> {m.changed} </span>
           <span className="mbr-col-size"> {m.size.toString().padStart(5)} </span>
           <span className="mbr-col-id"> {m.userid}</span>
+          {/* Mobile-only quick action buttons */}
+          <span className="mbr-mobile-actions" onClick={e => e.stopPropagation()}>
+            <button className="mbr-mobile-btn" onClick={() => edit(m.name)}>E</button>
+            <button className="mbr-mobile-btn" onClick={() => open(m.name)}>V</button>
+          </span>
         </div>
       ))}
     </ISPFScreen>
